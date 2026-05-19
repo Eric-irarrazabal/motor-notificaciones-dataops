@@ -1,0 +1,17 @@
+Campo	Tipo de dato	Descripción	Regla esperada / dominio
+notification_id	String	Identificador único de la notificación generada por el sistema.	Obligatorio, único, formato N00001; se usa como clave primaria para idempotencia.
+event_id	String	Identificador único del evento de interacción que originó la notificación.	Obligatorio, formato E00001.
+event_type	String	Tipo de interacción en la red social.	Valores válidos: LIKE, COMMENT, FOLLOW.
+user_id	String	Usuario receptor de la notificación.	Obligatorio; debe cifrarse antes de cargar a BD.
+source_user_id	String	Usuario que genera la interacción.	Obligatorio; debe cifrarse antes de cargar a BD; no puede ser igual a user_id.
+post_id	String	Publicación asociada al evento, cuando aplica.	Obligatorio para LIKE y COMMENT; vacío permitido para FOLLOW.
+comment_id	String	Comentario asociado, cuando el evento es COMMENT.	Obligatorio solo si event_type = COMMENT.
+created_at	Datetime	Fecha y hora en que ocurrió el evento.	Formato esperado YYYY-MM-DD HH:MM:SS; no debe ser futuro.
+device	String	Dispositivo desde el cual se originó la interacción.	Valores válidos: MOBILE, WEB.
+delivery_channel	String	Canal usado para entregar la notificación.	Valores válidos: PUSH, EMAIL, IN_APP.
+priority	String	Prioridad operativa de la notificación.	Valores válidos: LOW, MEDIUM, HIGH.
+seen	Boolean/String	Indica si el usuario ya vio la notificación.	Valores esperados: true/false; limpiar a booleano.
+status	String	Estado operativo de entrega de la notificación.	Valores válidos: SENT, PENDING, FAILED.
+app_version	String	Versión de la app del usuario.	Formato semántico simple X.Y.Z.
+country	String	País del usuario en código ISO corto.	Valores esperados en demo: CL, AR, PE, MX.
+latency_ms	Integer	Tiempo de entrega de la notificación en milisegundos.	Debe ser >= 0 cuando status = SENT; puede quedar vacío si status = FAILED.

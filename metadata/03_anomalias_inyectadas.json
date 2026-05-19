@@ -1,0 +1,62 @@
+[
+  {
+    "row_number_csv": 122,
+    "notification_id": "N00010",
+    "issue": "Duplicado exacto de notification_id/event_id para probar deduplicación"
+  },
+  {
+    "row_number_csv": 16,
+    "notification_id": "N00015",
+    "issue": "event_type fuera de dominio: SHARE"
+  },
+  {
+    "row_number_csv": 23,
+    "notification_id": "N00022",
+    "issue": "timestamp con formato imposible"
+  },
+  {
+    "row_number_csv": 36,
+    "notification_id": "N00035",
+    "issue": "timestamp futuro"
+  },
+  {
+    "row_number_csv": 47,
+    "notification_id": "N00046",
+    "issue": "source_user_id nulo/vacío"
+  },
+  {
+    "row_number_csv": 58,
+    "notification_id": "N00057",
+    "issue": "self-event: user_id igual a source_user_id"
+  },
+  {
+    "row_number_csv": 69,
+    "notification_id": "N00068",
+    "issue": "device fuera de dominio"
+  },
+  {
+    "row_number_csv": 80,
+    "notification_id": "N00079",
+    "issue": "delivery_channel fuera de dominio"
+  },
+  {
+    "row_number_csv": 91,
+    "notification_id": "N00090",
+    "issue": "latency_ms negativo"
+  },
+  {
+    "row_number_csv": 97,
+    "notification_id": "N00096",
+    "issue": "COMMENT sin comment_id"
+  },
+  {
+    "row_number_csv": 103,
+    "notification_id": "N00102",
+    "issue": "seen no booleano"
+  },
+  {
+    "row_number_csv": 112,
+    "notification_id": "",
+    "issue": "notification_id vacío"
+  }
+]
