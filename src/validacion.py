@@ -1,27 +1,17 @@
 """
 src/validacion.py
-Módulo de validación estructural y semántica del pipeline.
+Modulo de validacion del pipeline.
 
-Lee el último CSV procesado de data/processed/, valida cada fila
-con un modelo Pydantic v2 que aplica reglas de dominio y reglas
-de negocio. Las filas válidas van a data/validated/, las que
-incumplen alguna regla van a data/rejected/ con motivo.
+Lee el ultimo archivo limpio, revisa fila por fila con reglas simples
+y separa los registros validos de los rechazados.
 """
 
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Optional
 
 import pandas as pd
-from pydantic import (
-    BaseModel,
-    Field,
-    ValidationError,
-    field_validator,
-    model_validator,
-)
 
 # --- Rutas ---
 DIR_RAIZ = Path(__file__).resolve().parent.parent
@@ -42,66 +32,15 @@ logging.basicConfig(
 )
 log = logging.getLogger("validacion")
 
-
-# --- Modelo Pydantic v2 ---
-class NotificacionValida(BaseModel):
-    """Esquema declarativo de una notificación válida según el caso."""
-
-    notification_id: str = Field(..., min_length=1)
-    event_id: str = Field(..., min_length=1)
-    event_type: Literal["LIKE", "COMMENT", "FOLLOW"]
-    user_id: str = Field(..., min_length=1)
-    source_user_id: str = Field(..., min_length=1)
-    post_id: Optional[str] = None
-    comment_id: Optional[str] = None
-    created_at: datetime
-    device: Literal["MOBILE", "WEB"]
-    delivery_channel: Literal["PUSH", "EMAIL", "IN_APP"]
-    priority: Literal["LOW", "MEDIUM", "HIGH"]
-    seen: bool
-    status: Literal["SENT", "PENDING", "FAILED"]
-    app_version: str = Field(..., min_length=1)
-    country: Literal["CL", "AR", "PE", "MX"]
-    latency_ms: Optional[int] = None
-
-    # --- Reglas de campo único ---
-
-    @field_validator("created_at")
-    @classmethod
-    def fecha_no_futura(cls, v: datetime) -> datetime:
-        if v > datetime.now():
-            raise ValueError("created_at no puede ser una fecha futura")
-        return v
-
-    @field_validator("latency_ms")
-    @classmethod
-    def latencia_no_negativa(cls, v):
-        if v is not None and v < 0:
-            raise ValueError("latency_ms no puede ser negativo")
-        return v
-
-    # --- Reglas que cruzan varios campos ---
-
-    @model_validator(mode="after")
-    def no_self_event(self):
-        if self.user_id == self.source_user_id:
-            raise ValueError("self-event: user_id igual a source_user_id")
-        return self
-
-    @model_validator(mode="after")
-    def comment_requiere_comment_id(self):
-        if self.event_type == "COMMENT" and not self.comment_id:
-            raise ValueError("COMMENT debe tener comment_id")
-        return self
-
-    @model_validator(mode="after")
-    def like_y_comment_requieren_post_id(self):
-        if self.event_type in ("LIKE", "COMMENT") and not self.post_id:
-            raise ValueError(f"{self.event_type} debe tener post_id")
-        return self
+# Valores permitidos segun el caso de estudio.
+EVENTOS_VALIDOS = {"LIKE", "COMMENT", "FOLLOW"}
+DISPOSITIVOS_VALIDOS = {"MOBILE", "WEB"}
+CANALES_VALIDOS = {"PUSH", "EMAIL", "IN_APP"}
+PRIORIDADES_VALIDAS = {"LOW", "MEDIUM", "HIGH"}
+ESTADOS_VALIDOS = {"SENT", "PENDING", "FAILED"}
+PAISES_VALIDOS = {"CL", "AR", "PE", "MX"}
 
 
-# --- Funciones auxiliares ---
 def obtener_ultimo_procesado() -> Path:
     archivos = sorted(DIR_PROCESADOS.glob("limpio_*.csv"))
     if not archivos:
@@ -112,38 +51,146 @@ def obtener_ultimo_procesado() -> Path:
     return archivos[-1]
 
 
-def _parsear_seen(v):
-    """Convierte 'True'/'False'/booleano de pandas a bool o None."""
-    if isinstance(v, bool):
-        return v
-    if pd.isna(v):
-        return None
-    s = str(v).strip().lower()
-    if s in ("true", "1"):
+def es_vacio(valor) -> bool:
+    """Indica si un valor viene vacio o nulo."""
+    if valor is None or pd.isna(valor):
         return True
-    if s in ("false", "0"):
+    return str(valor).strip() == ""
+
+
+def texto(valor) -> str:
+    """Convierte un valor a texto limpio."""
+    if es_vacio(valor):
+        return ""
+    return str(valor).strip()
+
+
+def convertir_bool(valor):
+    """Convierte True/False o 1/0 a booleano."""
+    if isinstance(valor, bool):
+        return valor
+    if es_vacio(valor):
+        return None
+
+    valor_texto = str(valor).strip().lower()
+    if valor_texto in ("true", "1"):
+        return True
+    if valor_texto in ("false", "0"):
         return False
     return None
 
 
-def _opt_str(v):
-    """NaN → None, todo lo demás → str."""
-    if pd.isna(v):
+def convertir_entero(valor):
+    """Convierte un numero a int. Si viene vacio, queda como None."""
+    if es_vacio(valor):
         return None
-    return str(v)
+    return int(float(valor))
 
 
-def _opt_int(v):
-    if pd.isna(v):
-        return None
-    return int(v)
+def validar_fila(fila) -> tuple[dict | None, str | None]:
+    """
+    Revisa una fila del CSV.
+
+    Si la fila cumple las reglas, devuelve los datos limpios.
+    Si falla, devuelve el motivo para guardarlo en rechazados.
+    """
+    motivos = []
+
+    notification_id = texto(fila.get("notification_id"))
+    event_id = texto(fila.get("event_id"))
+    event_type = texto(fila.get("event_type"))
+    user_id = texto(fila.get("user_id"))
+    source_user_id = texto(fila.get("source_user_id"))
+    post_id = texto(fila.get("post_id"))
+    comment_id = texto(fila.get("comment_id"))
+    created_at = fila.get("created_at_dt")
+    device = texto(fila.get("device"))
+    delivery_channel = texto(fila.get("delivery_channel"))
+    priority = texto(fila.get("priority"))
+    seen = convertir_bool(fila.get("seen_bool"))
+    status = texto(fila.get("status"))
+    app_version = texto(fila.get("app_version"))
+    country = texto(fila.get("country"))
+
+    try:
+        latency_ms = convertir_entero(fila.get("latency_ms"))
+    except (TypeError, ValueError):
+        latency_ms = None
+        motivos.append("latency_ms no es numerico")
+
+    # Campos obligatorios.
+    if not notification_id:
+        motivos.append("notification_id vacio")
+    if not event_id:
+        motivos.append("event_id vacio")
+    if not user_id:
+        motivos.append("user_id vacio")
+    if not source_user_id:
+        motivos.append("source_user_id vacio")
+    if not app_version:
+        motivos.append("app_version vacio")
+
+    # Valores permitidos.
+    if event_type not in EVENTOS_VALIDOS:
+        motivos.append("event_type fuera de dominio")
+    if device not in DISPOSITIVOS_VALIDOS:
+        motivos.append("device fuera de dominio")
+    if delivery_channel not in CANALES_VALIDOS:
+        motivos.append("delivery_channel fuera de dominio")
+    if priority not in PRIORIDADES_VALIDAS:
+        motivos.append("priority fuera de dominio")
+    if status not in ESTADOS_VALIDOS:
+        motivos.append("status fuera de dominio")
+    if country not in PAISES_VALIDOS:
+        motivos.append("country fuera de dominio")
+
+    # Reglas de negocio del caso.
+    if pd.isna(created_at):
+        motivos.append("created_at vacio o invalido")
+    elif created_at.to_pydatetime() > datetime.now():
+        motivos.append("created_at no puede ser futuro")
+
+    if seen is None:
+        motivos.append("seen debe ser booleano")
+
+    if latency_ms is not None and latency_ms < 0:
+        motivos.append("latency_ms no puede ser negativo")
+
+    if user_id and source_user_id and user_id == source_user_id:
+        motivos.append("self-event: user_id igual a source_user_id")
+
+    if event_type == "COMMENT" and not comment_id:
+        motivos.append("COMMENT debe tener comment_id")
+
+    if event_type in ("LIKE", "COMMENT") and not post_id:
+        motivos.append(f"{event_type} debe tener post_id")
+
+    if motivos:
+        return None, "; ".join(motivos)
+
+    datos_validos = {
+        "notification_id": notification_id,
+        "event_id": event_id,
+        "event_type": event_type,
+        "user_id": user_id,
+        "source_user_id": source_user_id,
+        "post_id": post_id or None,
+        "comment_id": comment_id or None,
+        "created_at": created_at,
+        "device": device,
+        "delivery_channel": delivery_channel,
+        "priority": priority,
+        "seen": seen,
+        "status": status,
+        "app_version": app_version,
+        "country": country,
+        "latency_ms": latency_ms,
+    }
+    return datos_validos, None
 
 
-# --- Función principal ---
 def validar(ruta_procesado: Path | None = None) -> dict:
-    """
-    Valida cada fila con Pydantic. Separa válidas vs rechazadas.
-    """
+    """Valida el archivo limpio y guarda validos/rechazados."""
     if ruta_procesado is None:
         ruta_procesado = obtener_ultimo_procesado()
 
@@ -157,35 +204,14 @@ def validar(ruta_procesado: Path | None = None) -> dict:
     rechazados = []
 
     for _, fila in df.iterrows():
-        datos = {
-            "notification_id": _opt_str(fila.get("notification_id")) or "",
-            "event_id": _opt_str(fila.get("event_id")) or "",
-            "event_type": _opt_str(fila.get("event_type")) or "",
-            "user_id": _opt_str(fila.get("user_id")) or "",
-            "source_user_id": _opt_str(fila.get("source_user_id")) or "",
-            "post_id": _opt_str(fila.get("post_id")),
-            "comment_id": _opt_str(fila.get("comment_id")),
-            "created_at": fila.get("created_at_dt"),
-            "device": _opt_str(fila.get("device")) or "",
-            "delivery_channel": _opt_str(fila.get("delivery_channel")) or "",
-            "priority": _opt_str(fila.get("priority")) or "",
-            "seen": _parsear_seen(fila.get("seen_bool")),
-            "status": _opt_str(fila.get("status")) or "",
-            "app_version": _opt_str(fila.get("app_version")) or "",
-            "country": _opt_str(fila.get("country")) or "",
-            "latency_ms": _opt_int(fila.get("latency_ms")),
-        }
-        try:
-            modelo = NotificacionValida(**datos)
-            validos.append(modelo.model_dump())
-        except ValidationError as e:
-            motivos = "; ".join(
-                f"{err['loc'][0] if err['loc'] else '_'}: {err['msg']}"
-                for err in e.errors()
-            )
-            fila_rech = fila.to_dict()
-            fila_rech["motivo_rechazo"] = motivos
-            rechazados.append(fila_rech)
+        datos_validos, motivo = validar_fila(fila)
+
+        if motivo:
+            fila_rechazada = fila.to_dict()
+            fila_rechazada["motivo_rechazo"] = motivo
+            rechazados.append(fila_rechazada)
+        else:
+            validos.append(datos_validos)
 
     # --- Guardar resultados ---
     DIR_VALIDADOS.mkdir(parents=True, exist_ok=True)
@@ -201,9 +227,8 @@ def validar(ruta_procesado: Path | None = None) -> dict:
     if n_rechazados > 0:
         ruta_rechazados = DIR_RECHAZADOS / f"rechazados_validacion_{marca}.csv"
         pd.DataFrame(rechazados).to_csv(ruta_rechazados, index=False)
-        log.info(f"Rechazados de validación → {ruta_rechazados.name}")
+        log.info(f"Rechazados de validacion -> {ruta_rechazados.name}")
 
-    # --- Reporte ---
     porcentaje = (n_validos / n_total * 100) if n_total else 0
     reporte = {
         "archivo_procesado": ruta_procesado.name,
@@ -215,6 +240,7 @@ def validar(ruta_procesado: Path | None = None) -> dict:
         "porcentaje_validos": round(porcentaje, 2),
         "etapa_pipeline": "validacion",
     }
+
     ruta_reporte = DIR_VALIDADOS / f"reporte_validacion_{marca}.json"
     with open(ruta_reporte, "w", encoding="utf-8") as f:
         json.dump(reporte, f, indent=2, ensure_ascii=False)
@@ -228,5 +254,5 @@ def validar(ruta_procesado: Path | None = None) -> dict:
 
 if __name__ == "__main__":
     resultado = validar()
-    print("\n=== Reporte de validación ===")
+    print("\n=== Reporte de validacion ===")
     print(json.dumps(resultado, indent=2, ensure_ascii=False))

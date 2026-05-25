@@ -1,26 +1,21 @@
 """
 src/carga.py
-Módulo de carga del pipeline DataOps.
+Etapa de carga del pipeline.
 
-Toma los registros validados, cifra identificadores personales
-(user_id, source_user_id) con Fernet, y los carga al destino final
-(archivo CSV que simula la tabla notifications de la BD).
-
-Garantías:
-- Cifrado en reposo de PII (Ley 19.628 / 21.719).
-- Idempotencia: re-ejecutar no duplica (clave: notification_id).
-- Auditoría: cada carga deja registro en load_audit.csv.
+Toma los registros validos, cifra los ids de usuario y los guarda en
+data/validated/destino_final.csv. Tambien evita cargar dos veces una
+misma notificacion.
 """
 
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 
-# Permitimos que carga.py funcione tanto suelto como dentro del orquestador
-import sys
+# Permite ejecutar este archivo solo o desde pipeline.py.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from seguridad import cifrar, enmascarar
 
@@ -50,72 +45,65 @@ def obtener_ultimos_validos() -> Path:
     archivos = sorted(DIR_VALIDADOS.glob("validos_*.csv"))
     if not archivos:
         raise FileNotFoundError(
-            "No hay archivos válidos en data/validated/. "
+            "No hay archivos validos en data/validated/. "
             "Ejecuta src/validacion.py primero."
         )
     return archivos[-1]
 
 
 def cargar(ruta_validos: Path | None = None) -> dict:
-    """
-    Carga los registros validados al destino final con:
-    - Cifrado Fernet de user_id y source_user_id.
-    - Idempotencia por notification_id.
-    - Registro en auditoría.
-    """
+    """Carga los datos validos al archivo final."""
     if ruta_validos is None:
         ruta_validos = obtener_ultimos_validos()
 
-    log.info(f"Leyendo válidos: {ruta_validos.name}")
+    log.info(f"Leyendo validos: {ruta_validos.name}")
     df = pd.read_csv(ruta_validos)
     n_entrada = len(df)
 
-    # --- Cifrado de PII ---
-    log.info("Cifrando identificadores con Fernet (AES-128)...")
+    # Se cifran los ids porque son datos personales.
+    log.info("Cifrando identificadores de usuario")
     df["user_id_enc"] = df["user_id"].apply(cifrar)
     df["source_user_id_enc"] = df["source_user_id"].apply(cifrar)
 
-    # Mostrar 1 ejemplo en logs ENMASCARADO (no filtra datos)
     if n_entrada > 0:
         ejemplo_user = enmascarar(df["user_id"].iloc[0])
         ejemplo_enc = df["user_id_enc"].iloc[0][:30] + "..."
-        log.info(f"Ejemplo cifrado: {ejemplo_user} → {ejemplo_enc}")
+        log.info(f"Ejemplo cifrado: {ejemplo_user} -> {ejemplo_enc}")
 
-    # Eliminar columnas en claro (cifrado en reposo)
+    # Despues de cifrar, no se guardan los ids originales.
     df = df.drop(columns=["user_id", "source_user_id"])
 
-    # --- Idempotencia: comparar contra destino existente ---
     DIR_VALIDADOS.mkdir(parents=True, exist_ok=True)
     DIR_REPORTES.mkdir(parents=True, exist_ok=True)
 
+    # Si ya existe el destino, se agregan solo las notificaciones nuevas.
     if DESTINO_FINAL.exists():
         existentes = pd.read_csv(DESTINO_FINAL)
         ids_existentes = set(existentes["notification_id"].astype(str))
         nuevos = df[~df["notification_id"].astype(str).isin(ids_existentes)]
-        n_idempotentes = n_entrada - len(nuevos)
+        n_repetidos = n_entrada - len(nuevos)
         combinado = pd.concat([existentes, nuevos], ignore_index=True)
         log.info(
-            f"Idempotencia | ya cargados={n_idempotentes} | "
-            f"nuevos a insertar={len(nuevos)}"
+            f"Carga sin duplicar | repetidos={n_repetidos} | "
+            f"nuevos={len(nuevos)}"
         )
     else:
         nuevos = df
-        n_idempotentes = 0
+        n_repetidos = 0
         combinado = df
-        log.info("Primera carga: destino_final.csv no existía")
+        log.info("Primera carga: se crea destino_final.csv")
 
     n_insertados = len(nuevos)
     combinado.to_csv(DESTINO_FINAL, index=False)
 
-    # --- Auditoría ---
     registro_auditoria = {
         "fecha_carga": datetime.now().isoformat(timespec="seconds"),
         "archivo_origen": ruta_validos.name,
         "filas_entrada": n_entrada,
         "filas_insertadas": n_insertados,
-        "filas_idempotentes": n_idempotentes,
+        "filas_idempotentes": n_repetidos,
         "total_destino": len(combinado),
-        "cifrado": "Fernet AES-128 CBC + HMAC SHA-256",
+        "cifrado": "Fernet",
     }
 
     df_auditoria = pd.DataFrame([registro_auditoria])
@@ -125,8 +113,8 @@ def cargar(ruta_validos: Path | None = None) -> dict:
         df_auditoria.to_csv(AUDITORIA, index=False)
 
     log.info(
-        f"Carga OK | insertados={n_insertados} | idempotentes={n_idempotentes} | "
-        f"total_destino={len(combinado)} | cifrado=Fernet AES-128"
+        f"Carga OK | insertados={n_insertados} | repetidos={n_repetidos} | "
+        f"total_destino={len(combinado)}"
     )
     return registro_auditoria
 

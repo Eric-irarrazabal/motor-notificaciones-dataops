@@ -1,111 +1,141 @@
-# Motor de Notificaciones — Pipeline DataOps
+# Motor de Notificaciones - Pipeline DataOps
 
-Pipeline DataOps **híbrido modular** para procesar eventos de una red social
-(likes, comentarios, follows) y entregarlos como notificaciones de forma
-trazable, segura e idempotente.
+Proyecto academico para la asignatura Gestion de Datos para IA, ITY1101.
 
-> Asignatura: **Gestión de Datos para IA — ITY1101**
-> Evaluación Parcial N°2 — Mayo 2026
-> Caso de Estudio 2: Motor de Notificaciones
+El objetivo es procesar eventos de una red social, como likes, comentarios
+y follows, para generar un archivo final de notificaciones limpias,
+validadas y con datos personales protegidos.
 
----
+## 1. Problema
 
-## 1. Problema y solución
+El archivo original trae datos con errores:
 
-Una red social recibe miles de eventos de interacción al día. Cada evento
-puede generar una notificación que debe entregarse en tiempo cercano al real,
-con baja latencia y sin duplicar. Los datos crudos vienen sucios: timestamps
-inválidos, duplicados, valores fuera de dominio, identificadores vacíos.
+- Notificaciones duplicadas.
+- Fechas con formato incorrecto.
+- Valores que no corresponden al dominio esperado.
+- Identificadores vacios.
+- Latencias negativas.
+- Comentarios sin `comment_id`.
 
-Este proyecto implementa un pipeline **DataOps** que ingiere, limpia, valida
-y carga los eventos con **trazabilidad SHA-256**, **cifrado Fernet** sobre
-datos personales (PII), **idempotencia** por `notification_id` y monitoreo
-con KPIs comparados contra SLOs.
+El pipeline separa el trabajo en etapas para que sea mas facil detectar
+en que parte aparece cada problema.
 
----
+## 2. Etapas del pipeline
 
-## 2. Arquitectura
+```text
+data/source/
+     |
+     v
+Ingesta -> Limpieza -> Validacion -> Carga -> KPIs
+     |          |           |          |       |
+     v          v           v          v       v
+data/raw/  processed/  validated/  destino  reports/
+                         rejected/
+```
 
-Pipeline híbrido modular con 5 etapas independientes:
-┌───────────┐   ┌───────────┐   ┌────────────┐   ┌────────┐   ┌──────┐
-│  INGESTA  │──▶│ LIMPIEZA  │──▶│ VALIDACIÓN │──▶│ CARGA  │──▶│ KPIs │
-│  src/     │   │ pandas    │   │ Pydantic v2│   │ Fernet │   │ JSON │
-└───────────┘   └───────────┘   └────────────┘   └────────┘   └──────┘
-│               │                │               │           │
-▼               ▼                ▼               ▼           ▼
-data/raw/    data/processed/   data/validated/  destino    data/reports/
+### Ingesta
 
-manifest                     data/rejected/   _final.csv kpis_latest.json
-SHA-256
+Lee el CSV original, lo copia a `data/raw/` y genera un archivo manifest
+con cantidad de filas, fecha de ingesta y hash SHA-256.
 
+### Limpieza
 
-Cada módulo es **independiente** y puede ejecutarse aislado o en cascada vía
-el orquestador `pipeline.py`. La modularidad permite escalado independiente
-por etapa cuando se despliega como microservicios en Docker.
+Corrige formatos simples:
 
----
+- Quita espacios.
+- Pasa categorias a mayusculas.
+- Convierte `seen` a booleano.
+- Convierte `created_at` a fecha.
+- Convierte `latency_ms` a numero.
+- Quita duplicados y fechas imposibles.
+
+### Validacion
+
+Revisa fila por fila usando reglas escritas con `if`.
+
+Ejemplos:
+
+- `event_type` debe ser `LIKE`, `COMMENT` o `FOLLOW`.
+- `device` debe ser `MOBILE` o `WEB`.
+- `created_at` no puede ser una fecha futura.
+- `latency_ms` no puede ser negativo.
+- Si el evento es `COMMENT`, debe tener `comment_id`.
+- `user_id` y `source_user_id` no pueden ser iguales.
+
+Las filas malas se guardan en `data/rejected/` con el motivo.
+
+### Carga
+
+Toma los registros validos, cifra `user_id` y `source_user_id` con Fernet
+y los guarda en `data/validated/destino_final.csv`.
+
+Si se ejecuta otra vez, no duplica notificaciones que ya estaban cargadas.
+
+### KPIs
+
+Calcula indicadores simples para revisar el resultado:
+
+- Completitud.
+- Tasa de rechazo.
+- Cumplimiento de latencia.
+- Latencia promedio.
+- Latencia percentil 95.
+
+El reporte queda en `data/reports/kpis_latest.json`.
 
 ## 3. Estructura del repositorio
+
+```text
 motor-notificaciones-dataops/
-├── data/
-│   ├── source/        # CSV fuente original
-│   ├── raw/           # copia inmutable + manifest SHA-256
-│   ├── processed/     # CSV limpios + metrics.json
-│   ├── validated/     # válidos + destino_final.csv cifrado
-│   ├── rejected/      # filas rechazadas con motivo
-│   └── reports/       # kpis_latest.json + load_audit.csv
-├── docker/            # Dockerfiles por etapa (un contenedor por módulo)
-├── logs/              # logs por módulo + orquestador.log
-├── metadata/          # diccionario de datos del caso
-├── sql/               # DDL para PostgreSQL (futuro)
-├── src/
-│   ├── ingesta.py
-│   ├── limpieza.py
-│   ├── validacion.py
-│   ├── carga.py
-│   ├── kpis.py
-│   └── seguridad.py   # Fernet + mask
-├── tests/             # pruebas unitarias (futuro)
-├── .env.example       # plantilla de variables de entorno
-├── .gitignore
-├── docker-compose.yml
-├── pipeline.py        # orquestador
-├── requirements.txt
-└── README.md
+  data/
+    source/       CSV original
+    raw/          copia del CSV y manifest
+    processed/    archivo limpio
+    validated/    registros validos y destino final
+    rejected/     registros rechazados
+    reports/      KPIs y auditoria de carga
+  logs/           logs de ejecucion
+  metadata/       descripcion de datos y anomalias
+  src/
+    ingesta.py
+    limpieza.py
+    validacion.py
+    carga.py
+    kpis.py
+    seguridad.py
+  pipeline.py
+  requirements.txt
+```
 
----
+## 4. Como ejecutar
 
-## 4. Cómo correr
-
-### 4.1 Requisitos
-
-- Python 3.12+
-- pip
-- (Opcional) Docker + Docker Compose para ejecución en contenedores
-
-### 4.2 Setup local
+Instalar dependencias:
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/<usuario>/motor-notificaciones-dataops.git
-cd motor-notificaciones-dataops
-
-# 2. Crear entorno e instalar dependencias
 pip install -r requirements.txt
+```
 
-# 3. Configurar variables de entorno
-cp .env.example .env
-# Generar tu clave Fernet:
+Crear el archivo `.env` usando `.env.example` como base.
+
+Generar una clave Fernet:
+
+```bash
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-# Pegar el resultado en .env como FERNET_KEY=...
+```
 
-# 4. Colocar el CSV fuente en data/source/02_notifications_raw_events.csv
+Guardar la clave en `.env`:
 
-# 5. Ejecutar el pipeline completo
+```text
+FERNET_KEY=clave_generada
+```
+
+Ejecutar todo el pipeline:
+
+```bash
 python pipeline.py
 ```
 
-### 4.3 Ejecutar etapas individualmente (útil para debugging)
+Tambien se pueden ejecutar las etapas por separado:
 
 ```bash
 python src/ingesta.py
@@ -115,103 +145,107 @@ python src/carga.py
 python src/kpis.py
 ```
 
----
+## 5. Anomalias detectadas
 
-## 5. Anomalías detectadas
+El dataset incluye 12 anomalias documentadas en
+`metadata/03_anomalias_inyectadas.json`.
 
-El dataset incluye **12 anomalías inyectadas** documentadas en
-`metadata/03_anomalias_inyectadas.json`. El pipeline las detecta todas:
+El pipeline detecta:
 
-| # | Detectada en | Anomalía |
-|---|---|---|
-| 1 | limpieza | `notification_id` duplicado |
-| 2 | validación | `event_type=SHARE` fuera de dominio |
-| 3 | limpieza | `timestamp` con formato imposible |
-| 4 | validación | `timestamp` futuro |
-| 5 | validación | `source_user_id` vacío |
-| 6 | validación | self-event (`user_id == source_user_id`) |
-| 7 | validación | `device=SMART_TV` fuera de dominio |
-| 8 | validación | `delivery_channel=SMS` fuera de dominio |
-| 9 | validación | `latency_ms` negativo |
-| 10 | validación | `COMMENT` sin `comment_id` |
-| 11 | validación | `seen` no booleano |
-| 12 | validación | `notification_id` vacío |
+- `notification_id` duplicado.
+- `event_type=SHARE` fuera de dominio.
+- Timestamp con formato imposible.
+- Timestamp futuro.
+- `source_user_id` vacio.
+- Evento donde `user_id == source_user_id`.
+- `device=SMART_TV` fuera de dominio.
+- `delivery_channel=SMS` fuera de dominio.
+- `latency_ms` negativo.
+- `COMMENT` sin `comment_id`.
+- `seen` no booleano.
+- `notification_id` vacio.
 
-Las filas rechazadas se guardan en `data/rejected/` con una columna
-`motivo_rechazo` que describe la regla violada.
+## 6. Seguridad
 
----
+El proyecto usa tres medidas principales:
 
-## 6. KPIs y SLOs
+- La clave de cifrado queda en `.env` y no se sube al repositorio.
+- Los ids de usuario se cifran antes de guardarse en el destino final.
+- En los logs se muestra un identificador enmascarado, por ejemplo `U***`.
 
-| KPI | SLO | Cómo se calcula |
-|---|---|---|
-| Completitud | ≥ 95% | celdas no nulas / celdas totales en columnas obligatorias |
-| Tasa de rechazo | ≤ 15% | filas rechazadas / filas iniciales |
-| Cumplimiento SLA | ≥ 85% | notif con `status=SENT` y `latency_ms ≤ 30000` |
-| Latencia promedio | ≤ 10000 ms | media sobre `status=SENT` |
-| Latencia P95 | ≤ 30000 ms | percentil 95 sobre `status=SENT` |
+Esto se relaciona con la proteccion de datos personales, porque `user_id`
+y `source_user_id` permiten identificar usuarios dentro del sistema.
 
-El reporte final se guarda en `data/reports/kpis_latest.json` con cada
-KPI marcado como `cumple: true/false` versus su SLO.
+## 7. Metodologia
 
----
+Se usa una organizacion mixta:
 
-## 7. Seguridad
+- Predictiva para ordenar las etapas principales del pipeline.
+- Adaptativa para ajustar reglas de limpieza, validacion y KPIs a medida
+  que se revisan los datos.
 
-| Control | Implementación | Norma asociada |
-|---|---|---|
-| Cifrado en reposo | Fernet (AES-128 CBC + HMAC SHA-256) sobre `user_id` y `source_user_id` | Ley 19.628 / Ley 21.719 |
-| Gestión de secretos | Clave en `.env`, fuera del repositorio (`.gitignore`) | OWASP Top 10 |
-| Enmascaramiento en logs | `U0042 → U***` mediante `seguridad.enmascarar()` | Principio de mínimo dato |
-| Trazabilidad | Manifest SHA-256 por cada ingesta | Auditoría DataOps |
-| Auditoría | `load_audit.csv` registra cada operación de carga | Trazabilidad |
-| Idempotencia | Dedup por `notification_id` | Integridad |
+## 8. Ejecucion con Docker
 
-La clave Fernet NUNCA debe estar en el repositorio. Cada desarrollador genera
-su propia clave local copiando `.env.example` a `.env`.
+El proyecto incluye una version contenerizada con un contenedor por
+etapa. Cada etapa corre en su propio contenedor y comparte el mismo
+volumen para `data/` y `logs/`.
 
----
+### Requisitos
 
-## 8. Ejecución con Docker (microservicios por etapa)
+- Docker Desktop instalado y corriendo.
+- Archivo `.env` con `FERNET_KEY` en la raiz del proyecto.
 
-Cada etapa del pipeline corre en su propio contenedor para permitir escalado
-independiente y aislamiento de fallos:
+### Comandos basicos
+
+Construir las imagenes:
 
 ```bash
-# Construir y ejecutar las 5 etapas en cascada
-docker compose up --build
+docker compose build
+```
 
-# Ver logs de una etapa específica
-docker compose logs validacion
+Ejecutar el pipeline completo (las 5 etapas en orden):
 
-# Re-ejecutar solo la etapa de KPIs (idempotencia demostrada)
+```bash
+docker compose up
+```
+
+Ejecutar solo una etapa:
+
+```bash
+docker compose run --rm ingesta
+docker compose run --rm limpieza
+docker compose run --rm validacion
+docker compose run --rm carga
 docker compose run --rm kpis
 ```
 
-Ver `docker-compose.yml` para detalles de los servicios.
+Limpiar contenedores entre corridas:
 
----
+```bash
+docker compose down
+```
 
-## 9. Equipo
+### Arquitectura
 
-| Integrante | Rol | Responsabilidad |
-|---|---|---|
-| _Por completar_ | Data Engineer | Pipeline, código, demo en vivo |
-| _Por completar_ | DevOps | Docker, CI/CD, logs, KPIs |
-| _Por completar_ | Project Manager | Planificación, documentación, presentación |
+```text
+ingesta -> limpieza -> validacion -> carga -> kpis
+   (cada flecha es un depends_on con service_completed_successfully)
 
----
+volumen compartido:
+  ./data  -> /app/data
+  ./logs  -> /app/logs
+```
 
-## 10. Metodología
+Los cinco servicios usan la misma imagen base (`Dockerfile`) y solo
+cambian el comando que ejecutan. Las carpetas `data/` y `logs/` del
+host se montan dentro de cada contenedor, asi cada etapa lee los
+artefactos que dejo la anterior.
 
-PMBOK **híbrida**: predictiva para componentes de infraestructura
-(ingesta, carga, Docker) y adaptativa para componentes de producto
-(reglas de validación, KPIs). Justificación detallada en el informe
-técnico (sección 4).
+La clave de cifrado se inyecta por `env_file: .env` y nunca queda
+escrita en la imagen.
 
----
+## 9. Proximos pasos
 
-## Licencia
-
-Proyecto académico — Duoc UC, ITY1101, 2026.
+- Agregar pruebas unitarias.
+- Guardar el destino final en una base de datos en vez de CSV.
+- Crear alertas automaticas cuando algun KPI no cumple la meta.

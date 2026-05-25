@@ -1,10 +1,13 @@
 """
 pipeline.py
-Orquestador del pipeline DataOps híbrido modular.
+Archivo principal para ejecutar el pipeline completo.
 
-Ejecuta las 5 etapas en secuencia y produce un resumen ejecutivo
-con métricas y KPIs. Único punto de entrada para la demo:
-    python pipeline.py
+Corre las etapas en orden:
+1. Ingesta
+2. Limpieza
+3. Validacion
+4. Carga
+5. KPIs
 """
 
 import logging
@@ -12,14 +15,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# --- Setup ANTES de importar los módulos ---
 DIR_RAIZ = Path(__file__).resolve().parent
 sys.path.insert(0, str(DIR_RAIZ / "src"))
 
 DIR_LOGS = DIR_RAIZ / "logs"
 DIR_LOGS.mkdir(parents=True, exist_ok=True)
 
-# Logger del orquestador (este es el primero, gana basicConfig)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -30,51 +31,44 @@ logging.basicConfig(
 )
 log = logging.getLogger("orquestador")
 
-# Ahora sí, importamos las etapas
+from carga import cargar
 from ingesta import ingestar_csv
+from kpis import calcular_kpis
 from limpieza import limpiar
 from validacion import validar
-from carga import cargar
-from kpis import calcular_kpis
 
 
 def main():
     log.info("=" * 64)
-    log.info("PIPELINE DATAOPS HÍBRIDO MODULAR — INICIANDO")
+    log.info("PIPELINE DE NOTIFICACIONES - INICIANDO")
     log.info("=" * 64)
 
     inicio = datetime.now()
 
     try:
-        # --- ETAPA 1: INGESTA ---
         log.info(">>> ETAPA 1/5: INGESTA")
         manifest = ingestar_csv()
 
-        # --- ETAPA 2: LIMPIEZA ---
         log.info(">>> ETAPA 2/5: LIMPIEZA")
         metricas_lim = limpiar()
 
-        # --- ETAPA 3: VALIDACIÓN ---
-        log.info(">>> ETAPA 3/5: VALIDACIÓN")
+        log.info(">>> ETAPA 3/5: VALIDACION")
         reporte_val = validar()
 
-        # --- ETAPA 4: CARGA ---
         log.info(">>> ETAPA 4/5: CARGA")
         auditoria = cargar()
 
-        # --- ETAPA 5: KPIs ---
         log.info(">>> ETAPA 5/5: KPIs")
         kpis = calcular_kpis()
 
-        # --- RESUMEN EJECUTIVO ---
         duracion = (datetime.now() - inicio).total_seconds()
-        dropped_limpieza = (
+        descartadas_limpieza = (
             metricas_lim["duplicados_eliminados"]
             + metricas_lim["timestamps_invalidos_eliminados"]
         )
 
         log.info("=" * 64)
-        log.info("RESUMEN EJECUTIVO")
+        log.info("RESUMEN FINAL")
         log.info("=" * 64)
         log.info(
             f"Ingesta    | filas={manifest['filas']} | "
@@ -83,7 +77,7 @@ def main():
         log.info(
             f"Limpieza   | inicial={metricas_lim['filas_inicial']} | "
             f"final={metricas_lim['filas_final']} | "
-            f"descartadas={dropped_limpieza}"
+            f"descartadas={descartadas_limpieza}"
         )
         log.info(
             f"Validacion | validos={reporte_val['validos']}/{reporte_val['total']} "
@@ -92,15 +86,15 @@ def main():
         )
         log.info(
             f"Carga      | insertados={auditoria['filas_insertadas']} | "
-            f"idempotentes={auditoria['filas_idempotentes']} | "
+            f"repetidos={auditoria['filas_idempotentes']} | "
             f"total_destino={auditoria['total_destino']}"
         )
 
-        cumplen = sum(1 for v in kpis["kpis"].values() if v["cumple"])
-        log.info(f"KPIs       | {cumplen}/5 dentro de SLO")
+        cumplen = sum(1 for valor in kpis["kpis"].values() if valor["cumple"])
+        log.info(f"KPIs       | {cumplen}/5 dentro de la meta")
         for nombre, kpi in kpis["kpis"].items():
-            marca = "[OK]" if kpi["cumple"] else "[!!]"
-            log.info(f"             {marca} {nombre}: {kpi['valor']} (SLO: {kpi['slo']})")
+            marca = "[OK]" if kpi["cumple"] else "[ALERTA]"
+            log.info(f"             {marca} {nombre}: {kpi['valor']} (meta: {kpi['slo']})")
 
         log.info("-" * 64)
         log.info(f"Duracion total: {duracion:.2f}s")
@@ -108,8 +102,8 @@ def main():
         log.info("PIPELINE OK")
         log.info("=" * 64)
 
-    except Exception as e:
-        log.exception(f"PIPELINE FALLO: {e}")
+    except Exception as error:
+        log.exception(f"PIPELINE FALLO: {error}")
         sys.exit(1)
 
 

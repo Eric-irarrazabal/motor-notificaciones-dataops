@@ -1,0 +1,70 @@
+
+services:
+
+  # ---Ingesta ---
+  ingesta:
+    build: .
+    image: motor-notificaciones-dataops:latest
+    container_name: pipeline-ingesta
+    command: python src/ingesta.py
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+  # ---Limpieza ---
+  limpieza:
+    image: motor-notificaciones-dataops:latest
+    container_name: pipeline-limpieza
+    command: python src/limpieza.py
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      ingesta:
+        condition: service_completed_successfully
+
+  # ---Validacion ---
+  validacion:
+    image: motor-notificaciones-dataops:latest
+    container_name: pipeline-validacion
+    command: python src/validacion.py
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      limpieza:
+        condition: service_completed_successfully
+
+  # ---Carga ---
+  carga:
+    image: motor-notificaciones-dataops:latest
+    container_name: pipeline-carga
+    command: python src/carga.py
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      validacion:
+        condition: service_completed_successfully
+
+  # ---KPIs ---
+  kpis:
+    image: motor-notificaciones-dataops:latest
+    container_name: pipeline-kpis
+    command: python src/kpis.py
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      carga:
+        condition: service_completed_successfully

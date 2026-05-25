@@ -1,0 +1,50 @@
+# Archivos y carpetas que NO deben entrar al contexto de build.
+# Esto hace los builds mas rapidos y evita filtrar datos sensibles.
+
+# Credenciales y configuracion local.
+.env
+.env.local
+
+# Control de versiones.
+.git
+.gitignore
+.gitattributes
+
+# Cache y entornos virtuales.
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+.pytest_cache
+.mypy_cache
+
+# IDEs.
+.vscode
+.idea
+*.swp
+
+# Documentacion y artefactos no necesarios en el contenedor.
+*.md
+*.pdf
+docs/
+
+# Datos generados por corridas anteriores.
+# El volumen montado en docker-compose es la fuente real de data/ y logs/.
+data/raw/*
+data/processed/*
+data/validated/*
+data/rejected/*
+data/reports/*
+logs/*
+
+# Permitir los .gitkeep para que las carpetas existan en la imagen.
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/validated/.gitkeep
+!data/rejected/.gitkeep
+!data/reports/.gitkeep
+!logs/.gitkeep
+
+# Output del proyecto.
+Guia_Defensa_Equipo*.pdf

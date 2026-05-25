@@ -1,10 +1,9 @@
 """
 src/kpis.py
-Módulo de KPIs operativos del pipeline DataOps.
+Etapa de indicadores.
 
-Lee los reportes intermedios (limpieza, validación, carga) y el
-destino final, calcula los 5 KPIs clave y los compara contra
-los SLO definidos. Guarda el reporte en data/reports/kpis_latest.json.
+Lee los resultados del pipeline y calcula numeros simples para saber
+si el proceso funciono bien: completitud, rechazos y latencias.
 """
 
 import json
@@ -35,31 +34,46 @@ logging.basicConfig(
 )
 log = logging.getLogger("kpis")
 
-# --- SLO objetivos ---
-SLO = {
-    "completitud_pct": 95.0,        # >= 95%
-    "tasa_rechazo_pct": 15.0,       # <= 15%
-    "cumplimiento_sla_pct": 85.0,   # >= 85%
-    "latencia_promedio_ms": 10000,  # <= 10s
-    "latencia_p95_ms": 30000,       # <= 30s
+# Metas definidas para evaluar el resultado.
+METAS = {
+    "completitud_pct": 95.0,        # minimo 95%
+    "tasa_rechazo_pct": 15.0,       # maximo 15%
+    "cumplimiento_sla_pct": 85.0,   # minimo 85%
+    "latencia_promedio_ms": 10000,  # maximo 10 segundos
+    "latencia_p95_ms": 30000,       # maximo 30 segundos
 }
 
-# Campos obligatorios para medir completitud
 CAMPOS_OBLIGATORIOS = [
-    "notification_id", "event_id", "event_type",
-    "user_id_enc", "source_user_id_enc",
-    "created_at", "device", "delivery_channel",
-    "priority", "seen", "status", "country",
+    "notification_id",
+    "event_id",
+    "event_type",
+    "user_id_enc",
+    "source_user_id_enc",
+    "created_at",
+    "device",
+    "delivery_channel",
+    "priority",
+    "seen",
+    "status",
+    "country",
 ]
 
 
-def _ultimo(patron: str, directorio: Path) -> Path | None:
+def ultimo_archivo(patron: str, directorio: Path) -> Path:
     archivos = sorted(directorio.glob(patron))
-    return archivos[-1] if archivos else None
+    if not archivos:
+        raise FileNotFoundError(f"No se encontro {patron} en {directorio}")
+    return archivos[-1]
+
+
+def esta_dentro_meta(valor, meta, mayor_es_mejor=True) -> bool:
+    if mayor_es_mejor:
+        return bool(valor >= meta)
+    return bool(valor <= meta)
 
 
 def calcular_kpis() -> dict:
-    """Calcula los 5 KPIs operativos y compara con los SLO."""
+    """Calcula los KPIs y guarda el reporte final."""
     if not DESTINO_FINAL.exists():
         raise FileNotFoundError(
             "No existe data/validated/destino_final.csv. Ejecuta src/carga.py primero."
@@ -69,9 +83,11 @@ def calcular_kpis() -> dict:
     df = pd.read_csv(DESTINO_FINAL)
     n_destino = len(df)
 
-    # --- Reconstruir el total inicial a partir de los reportes intermedios ---
-    metricas_lim = json.loads(_ultimo("metricas_*.json", DIR_PROCESADOS).read_text(encoding="utf-8"))
-    reporte_val = json.loads(_ultimo("reporte_validacion_*.json", DIR_VALIDADOS).read_text(encoding="utf-8"))
+    ruta_metricas = ultimo_archivo("metricas_*.json", DIR_PROCESADOS)
+    ruta_reporte = ultimo_archivo("reporte_validacion_*.json", DIR_VALIDADOS)
+
+    metricas_lim = json.loads(ruta_metricas.read_text(encoding="utf-8"))
+    reporte_val = json.loads(ruta_reporte.read_text(encoding="utf-8"))
 
     n_inicial = metricas_lim["filas_inicial"]
     n_eliminados_limpieza = (
@@ -81,16 +97,16 @@ def calcular_kpis() -> dict:
     n_rechazados_validacion = reporte_val["rechazados"]
     n_rechazados_total = n_eliminados_limpieza + n_rechazados_validacion
 
-    # --- KPI 1: Completitud ---
+    # KPI 1: porcentaje de datos obligatorios completos.
     columnas_existentes = [c for c in CAMPOS_OBLIGATORIOS if c in df.columns]
     total_celdas = len(df) * len(columnas_existentes)
     celdas_no_nulas = df[columnas_existentes].notna().sum().sum()
     completitud_pct = (celdas_no_nulas / total_celdas * 100) if total_celdas else 0
 
-    # --- KPI 2: Tasa de rechazo ---
+    # KPI 2: porcentaje de registros descartados.
     tasa_rechazo_pct = (n_rechazados_total / n_inicial * 100) if n_inicial else 0
 
-    # --- KPI 3, 4, 5: SLA y latencias (solo sobre status=SENT) ---
+    # KPI 3, 4 y 5: se calculan solo con notificaciones enviadas.
     df_sent = df[df["status"] == "SENT"].copy()
     df_sent["latency_ms"] = pd.to_numeric(df_sent["latency_ms"], errors="coerce")
     df_sent_validas = df_sent.dropna(subset=["latency_ms"])
@@ -98,15 +114,16 @@ def calcular_kpis() -> dict:
     cumplen_sla = df_sent_validas[df_sent_validas["latency_ms"] <= 30000]
     cumplimiento_sla_pct = (
         len(cumplen_sla) / len(df_sent_validas) * 100
-        if len(df_sent_validas) else 0
+        if len(df_sent_validas)
+        else 0
     )
 
-    latencia_promedio_ms = float(df_sent_validas["latency_ms"].mean()) if len(df_sent_validas) else 0
-    latencia_p95_ms = float(df_sent_validas["latency_ms"].quantile(0.95)) if len(df_sent_validas) else 0
-
-    # --- Construir reporte con SLO ---
-    def cumple(valor, slo, mayor_es_mejor=True):
-        return bool((valor >= slo) if mayor_es_mejor else (valor <= slo))
+    if len(df_sent_validas):
+        latencia_promedio_ms = float(df_sent_validas["latency_ms"].mean())
+        latencia_p95_ms = float(df_sent_validas["latency_ms"].quantile(0.95))
+    else:
+        latencia_promedio_ms = 0
+        latencia_p95_ms = 0
 
     kpis = {
         "fecha_calculo": datetime.now().isoformat(timespec="seconds"),
@@ -116,28 +133,43 @@ def calcular_kpis() -> dict:
         "kpis": {
             "completitud_pct": {
                 "valor": round(completitud_pct, 2),
-                "slo": SLO["completitud_pct"],
-                "cumple": cumple(completitud_pct, SLO["completitud_pct"], True),
+                "slo": METAS["completitud_pct"],
+                "cumple": esta_dentro_meta(completitud_pct, METAS["completitud_pct"]),
             },
             "tasa_rechazo_pct": {
                 "valor": round(tasa_rechazo_pct, 2),
-                "slo": SLO["tasa_rechazo_pct"],
-                "cumple": cumple(tasa_rechazo_pct, SLO["tasa_rechazo_pct"], False),
+                "slo": METAS["tasa_rechazo_pct"],
+                "cumple": esta_dentro_meta(
+                    tasa_rechazo_pct,
+                    METAS["tasa_rechazo_pct"],
+                    mayor_es_mejor=False,
+                ),
             },
             "cumplimiento_sla_pct": {
                 "valor": round(cumplimiento_sla_pct, 2),
-                "slo": SLO["cumplimiento_sla_pct"],
-                "cumple": cumple(cumplimiento_sla_pct, SLO["cumplimiento_sla_pct"], True),
+                "slo": METAS["cumplimiento_sla_pct"],
+                "cumple": esta_dentro_meta(
+                    cumplimiento_sla_pct,
+                    METAS["cumplimiento_sla_pct"],
+                ),
             },
             "latencia_promedio_ms": {
                 "valor": round(latencia_promedio_ms, 2),
-                "slo": SLO["latencia_promedio_ms"],
-                "cumple": cumple(latencia_promedio_ms, SLO["latencia_promedio_ms"], False),
+                "slo": METAS["latencia_promedio_ms"],
+                "cumple": esta_dentro_meta(
+                    latencia_promedio_ms,
+                    METAS["latencia_promedio_ms"],
+                    mayor_es_mejor=False,
+                ),
             },
             "latencia_p95_ms": {
                 "valor": round(latencia_p95_ms, 2),
-                "slo": SLO["latencia_p95_ms"],
-                "cumple": cumple(latencia_p95_ms, SLO["latencia_p95_ms"], False),
+                "slo": METAS["latencia_p95_ms"],
+                "cumple": esta_dentro_meta(
+                    latencia_p95_ms,
+                    METAS["latencia_p95_ms"],
+                    mayor_es_mejor=False,
+                ),
             },
         },
         "errores_por_etapa": {
@@ -148,7 +180,6 @@ def calcular_kpis() -> dict:
         },
     }
 
-    # --- Guardar ---
     DIR_REPORTES.mkdir(parents=True, exist_ok=True)
     marca = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -159,9 +190,8 @@ def calcular_kpis() -> dict:
         with open(ruta, "w", encoding="utf-8") as f:
             json.dump(kpis, f, indent=2, ensure_ascii=False)
 
-    # --- Log resumen ---
-    alertas = sum(1 for k, v in kpis["kpis"].items() if not v["cumple"])
-    estado = "TODOS DENTRO DE SLO" if alertas == 0 else f"{alertas} ALERTA(S)"
+    alertas = sum(1 for valor in kpis["kpis"].values() if not valor["cumple"])
+    estado = "sin alertas" if alertas == 0 else f"{alertas} alerta(s)"
     log.info(
         f"KPIs OK | completitud={completitud_pct:.1f}% | "
         f"rechazo={tasa_rechazo_pct:.1f}% | "
