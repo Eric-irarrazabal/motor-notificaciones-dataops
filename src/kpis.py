@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-# --- Rutas ---
+# Carpetas que usa esta etapa
 DIR_RAIZ = Path(__file__).resolve().parent.parent
 DIR_PROCESADOS = DIR_RAIZ / "data" / "processed"
 DIR_VALIDADOS = DIR_RAIZ / "data" / "validated"
@@ -22,7 +22,7 @@ DIR_LOGS = DIR_RAIZ / "logs"
 
 DESTINO_FINAL = DIR_VALIDADOS / "destino_final.csv"
 
-# --- Logging ---
+# Log: a consola y a archivo
 DIR_LOGS.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
@@ -36,11 +36,11 @@ log = logging.getLogger("kpis")
 
 # Metas definidas para evaluar el resultado.
 METAS = {
-    "completitud_pct": 95.0,        # minimo 95%
-    "tasa_rechazo_pct": 15.0,       # maximo 15%
-    "cumplimiento_sla_pct": 85.0,   # minimo 85%
+    "completitud_%": 95.0,        # minimo 95%
+    "tasa_rechazo_%": 15.0,       # maximo 15%
+    "cumplimiento_sla_%": 85.0,   # minimo 85%
     "latencia_promedio_ms": 10000,  # maximo 10 segundos
-    "latencia_p95_ms": 30000,       # maximo 30 segundos
+    "latencia_%95_ms": 30000,       # maximo 30 segundos
 }
 
 CAMPOS_OBLIGATORIOS = [
@@ -67,6 +67,13 @@ def ultimo_archivo(patron: str, directorio: Path) -> Path:
 
 
 def esta_dentro_meta(valor, meta, mayor_es_mejor=True) -> bool:
+    """
+    Indica si un KPI cumple su meta.
+
+    Algunos KPI son "mientras mas alto, mejor" (completitud, SLA): cumplen
+    si el valor es >= meta. Otros son "mientras mas bajo, mejor" (tasa de
+    rechazo, latencias): cumplen si el valor es <= meta.
+    """
     if mayor_es_mejor:
         return bool(valor >= meta)
     return bool(valor <= meta)
@@ -97,20 +104,22 @@ def calcular_kpis() -> dict:
     n_rechazados_validacion = reporte_val["rechazados"]
     n_rechazados_total = n_eliminados_limpieza + n_rechazados_validacion
 
-    # KPI 1: porcentaje de datos obligatorios completos.
+    # KPI 1: porcentaje de datos obligatorios completos
     columnas_existentes = [c for c in CAMPOS_OBLIGATORIOS if c in df.columns]
     total_celdas = len(df) * len(columnas_existentes)
     celdas_no_nulas = df[columnas_existentes].notna().sum().sum()
     completitud_pct = (celdas_no_nulas / total_celdas * 100) if total_celdas else 0
 
-    # KPI 2: porcentaje de registros descartados.
+    # KPI 2: porcentaje de registros descartados
     tasa_rechazo_pct = (n_rechazados_total / n_inicial * 100) if n_inicial else 0
 
-    # KPI 3, 4 y 5: se calculan solo con notificaciones enviadas.
+    # KPI 3, 4 y 5: se calculan solo con notificaciones enviadas
     df_sent = df[df["status"] == "SENT"].copy()
     df_sent["latency_ms"] = pd.to_numeric(df_sent["latency_ms"], errors="coerce")
     df_sent_validas = df_sent.dropna(subset=["latency_ms"])
 
+    # Una notificacion cumple el SLA si se entrego en 30 s o menos
+    # (30000 ms). Es el mismo techo que la meta de latencia p95
     cumplen_sla = df_sent_validas[df_sent_validas["latency_ms"] <= 30000]
     cumplimiento_sla_pct = (
         len(cumplen_sla) / len(df_sent_validas) * 100
@@ -131,26 +140,26 @@ def calcular_kpis() -> dict:
         "registros_inicial": int(n_inicial),
         "registros_rechazados_total": int(n_rechazados_total),
         "kpis": {
-            "completitud_pct": {
+            "completitud_%": {
                 "valor": round(completitud_pct, 2),
-                "slo": METAS["completitud_pct"],
-                "cumple": esta_dentro_meta(completitud_pct, METAS["completitud_pct"]),
+                "slo": METAS["completitud_%"],
+                "cumple": esta_dentro_meta(completitud_pct, METAS["completitud_%"]),
             },
-            "tasa_rechazo_pct": {
+            "tasa_rechazo_%": {
                 "valor": round(tasa_rechazo_pct, 2),
-                "slo": METAS["tasa_rechazo_pct"],
+                "slo": METAS["tasa_rechazo_%"],
                 "cumple": esta_dentro_meta(
                     tasa_rechazo_pct,
-                    METAS["tasa_rechazo_pct"],
+                    METAS["tasa_rechazo_%"],
                     mayor_es_mejor=False,
                 ),
             },
-            "cumplimiento_sla_pct": {
+            "cumplimiento_sla_%": {
                 "valor": round(cumplimiento_sla_pct, 2),
-                "slo": METAS["cumplimiento_sla_pct"],
+                "slo": METAS["cumplimiento_sla_%"],
                 "cumple": esta_dentro_meta(
                     cumplimiento_sla_pct,
-                    METAS["cumplimiento_sla_pct"],
+                    METAS["cumplimiento_sla_%"],
                 ),
             },
             "latencia_promedio_ms": {
@@ -162,12 +171,12 @@ def calcular_kpis() -> dict:
                     mayor_es_mejor=False,
                 ),
             },
-            "latencia_p95_ms": {
+            "latencia_%95_ms": {
                 "valor": round(latencia_p95_ms, 2),
-                "slo": METAS["latencia_p95_ms"],
+                "slo": METAS["latencia_%95_ms"],
                 "cumple": esta_dentro_meta(
                     latencia_p95_ms,
-                    METAS["latencia_p95_ms"],
+                    METAS["latencia_%95_ms"],
                     mayor_es_mejor=False,
                 ),
             },
@@ -196,7 +205,7 @@ def calcular_kpis() -> dict:
         f"KPIs OK | completitud={completitud_pct:.1f}% | "
         f"rechazo={tasa_rechazo_pct:.1f}% | "
         f"sla={cumplimiento_sla_pct:.1f}% | "
-        f"p95={latencia_p95_ms:.0f}ms | {estado}"
+        f"%95={latencia_p95_ms:.0f}ms | {estado}"
     )
     return kpis
 

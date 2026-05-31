@@ -29,8 +29,11 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
-log = logging.getLogger("orquestador")
+log = logging.getLogger("pipeline_notificaciones")
 
+# Importamos las etapas despues de agregar src/ al sys.path (lineas de arriba),
+# para que Python las encuentre tanto al correr "python pipeline.py" como al
+# ejecutar cada etapa por separado.
 from carga import cargar
 from ingesta import ingestar_csv
 from kpis import calcular_kpis
@@ -39,26 +42,24 @@ from validacion import validar
 
 
 def main():
-    log.info("=" * 64)
-    log.info("PIPELINE DE NOTIFICACIONES - INICIANDO")
-    log.info("=" * 64)
+    log.info("INICIANDO PIPELINE DE NOTIFICACIONES - ")
 
     inicio = datetime.now()
 
     try:
-        log.info(">>> ETAPA 1/5: INGESTA")
+        log.info("ETAPA 1/5: INGESTA")
         manifest = ingestar_csv()
 
-        log.info(">>> ETAPA 2/5: LIMPIEZA")
+        log.info("ETAPA 2/5: LIMPIEZA")
         metricas_lim = limpiar()
 
-        log.info(">>> ETAPA 3/5: VALIDACION")
+        log.info("ETAPA 3/5: VALIDACION")
         reporte_val = validar()
 
-        log.info(">>> ETAPA 4/5: CARGA")
+        log.info("ETAPA 4/5: CARGA")
         auditoria = cargar()
 
-        log.info(">>> ETAPA 5/5: KPIs")
+        log.info("ETAPA 5/5: KPIs")
         kpis = calcular_kpis()
 
         duracion = (datetime.now() - inicio).total_seconds()
@@ -67,9 +68,7 @@ def main():
             + metricas_lim["timestamps_invalidos_eliminados"]
         )
 
-        log.info("=" * 64)
-        log.info("RESUMEN FINAL")
-        log.info("=" * 64)
+        log.info("RESUMEN DEL PROCESO")
         log.info(
             f"Ingesta    | filas={manifest['filas']} | "
             f"sha256={manifest['sha256'][:12]}"
@@ -77,7 +76,7 @@ def main():
         log.info(
             f"Limpieza   | inicial={metricas_lim['filas_inicial']} | "
             f"final={metricas_lim['filas_final']} | "
-            f"descartadas={descartadas_limpieza}"
+            f"descartados={descartadas_limpieza}"
         )
         log.info(
             f"Validacion | validos={reporte_val['validos']}/{reporte_val['total']} "
@@ -90,7 +89,7 @@ def main():
             f"total_destino={auditoria['total_destino']}"
         )
 
-        cumplen = sum(1 for valor in kpis["kpis"].values() if valor["cumple"])
+        cumplen = sum(1 for indicador in kpis["kpis"].values() if indicador["cumple"])
         log.info(f"KPIs       | {cumplen}/5 dentro de la meta")
         for nombre, kpi in kpis["kpis"].items():
             marca = "[OK]" if kpi["cumple"] else "[ALERTA]"
@@ -98,14 +97,12 @@ def main():
 
         log.info("-" * 64)
         log.info(f"Duracion total: {duracion:.2f}s")
-        log.info("=" * 64)
-        log.info("PIPELINE OK")
-        log.info("=" * 64)
+        log.info("PIPELINE FUNCIONÓ CORRECTAMENTE")
 
     except Exception as error:
-        log.exception(f"PIPELINE FALLO: {error}")
+        log.exception(f"PIPELINE FALLÓ: {error}")
         sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     main()

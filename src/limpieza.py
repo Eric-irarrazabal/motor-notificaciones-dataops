@@ -8,19 +8,24 @@ filas que no se pueden seguir procesando.
 
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 
-# --- Rutas ---
+# Permite reutilizar el modulo db.py al ejecutar solo o desde pipeline.py.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from db import insertar_rechazados
+
+# Carpetas que usa esta etapa
 DIR_RAIZ = Path(__file__).resolve().parent.parent
 DIR_CRUDOS = DIR_RAIZ / "data" / "raw"
 DIR_PROCESADOS = DIR_RAIZ / "data" / "processed"
 DIR_RECHAZADOS = DIR_RAIZ / "data" / "rejected"
 DIR_LOGS = DIR_RAIZ / "logs"
 
-# --- Logging ---
+# Log: a consola y a archivo
 DIR_LOGS.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
@@ -79,8 +84,8 @@ def limpiar(ruta_crudo: Path | None = None) -> dict:
     n_inicial = len(df)
     log.info(f"Filas iniciales: {n_inicial}")
 
-    # include=["object", "string"] cubre pandas 2.x (object) y pandas 3.x (string)
-    # sin disparar el Pandas4Warning de cambio de comportamiento.
+    # Quitar espacios al inicio y al final en todas las columnas de texto.
+    # ("object" y "string" son los dos nombres que usa pandas para texto.)
     for col in df.select_dtypes(include=["object", "string"]).columns:
         df[col] = df[col].str.strip()
 
@@ -99,20 +104,23 @@ def limpiar(ruta_crudo: Path | None = None) -> dict:
 
     df["latency_ms"] = pd.to_numeric(df["latency_ms"], errors="coerce")
 
-    # Duplicados por notification_id. Los vacios se revisan en validacion.
-    mask_dup = (
+    # Marcar como duplicada toda fila cuyo notification_id ya aparecio antes.
+    # keep="first" deja pasar la primera y marca solo las repetidas.
+    # El notna() evita marcar las vacias (esas las revisa la validacion).
+    es_duplicado = (
         df.duplicated(subset=["notification_id"], keep="first")
         & df["notification_id"].notna()
     )
-    rechazos_dup = df[mask_dup].copy()
+    rechazos_dup = df[es_duplicado].copy()
     rechazos_dup["motivo_rechazo"] = "duplicado_notification_id"
-    df = df[~mask_dup].copy()
+    df = df[~es_duplicado].copy()
 
-    # Fechas que no se pudieron convertir.
-    mask_ts = df["created_at"].notna() & df["created_at_dt"].isna()
-    rechazos_ts = df[mask_ts].copy()
+    # Fecha invalida: habia texto en created_at, pero al convertirlo a fecha
+    # (created_at_dt) quedo vacio. Es decir, el formato no se pudo leer.
+    fecha_invalida = df["created_at"].notna() & df["created_at_dt"].isna()
+    rechazos_ts = df[fecha_invalida].copy()
     rechazos_ts["motivo_rechazo"] = "timestamp_formato_invalido"
-    df = df[~mask_ts].copy()
+    df = df[~fecha_invalida].copy()
 
     DIR_PROCESADOS.mkdir(parents=True, exist_ok=True)
     DIR_RECHAZADOS.mkdir(parents=True, exist_ok=True)
@@ -126,6 +134,14 @@ def limpiar(ruta_crudo: Path | None = None) -> dict:
         ruta_rechazados = DIR_RECHAZADOS / f"rechazados_limpieza_{marca}.csv"
         rechazados_total.to_csv(ruta_rechazados, index=False)
         log.info(f"Rechazados de limpieza -> {ruta_rechazados.name}")
+
+        # Tambien insertar rechazos en Supabase (tabla rechazados).
+        try:
+            filas = rechazados_total.to_dict(orient="records")
+            n = insertar_rechazados(filas, etapa="limpieza")
+            log.info(f"Rechazados enviados a Supabase: {n}")
+        except Exception as e:
+            log.warning(f"No se pudo escribir rechazos en Supabase: {e}")
 
     n_duplicados = len(rechazos_dup)
     n_ts_invalidos = len(rechazos_ts)

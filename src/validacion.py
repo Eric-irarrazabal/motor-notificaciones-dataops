@@ -8,19 +8,24 @@ y separa los registros validos de los rechazados.
 
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 
-# --- Rutas ---
+# Permite reutilizar el modulo db.py al ejecutar solo o desde pipeline.py.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from db import insertar_rechazados
+
+# Carpetas que usa esta etapa
 DIR_RAIZ = Path(__file__).resolve().parent.parent
 DIR_PROCESADOS = DIR_RAIZ / "data" / "processed"
 DIR_VALIDADOS = DIR_RAIZ / "data" / "validated"
 DIR_RECHAZADOS = DIR_RAIZ / "data" / "rejected"
 DIR_LOGS = DIR_RAIZ / "logs"
 
-# --- Logging ---
+# Log: a consola y a archivo
 DIR_LOGS.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
@@ -81,9 +86,10 @@ def convertir_bool(valor):
 
 
 def convertir_entero(valor):
-    """Convierte un numero a int. Si viene vacio, queda como None."""
+    """Convierte un numero a entero. Si viene vacio, queda como None."""
     if es_vacio(valor):
         return None
+    # Pasamos primero por float para aceptar textos como "3.0" y no solo "3".
     return int(float(valor))
 
 
@@ -144,7 +150,7 @@ def validar_fila(fila) -> tuple[dict | None, str | None]:
     if country not in PAISES_VALIDOS:
         motivos.append("country fuera de dominio")
 
-    # Reglas de negocio del caso.
+    # Reglas que cruzan varios campos: coherencia y politicas del caso.
     if pd.isna(created_at):
         motivos.append("created_at vacio o invalido")
     elif created_at.to_pydatetime() > datetime.now():
@@ -164,6 +170,29 @@ def validar_fila(fila) -> tuple[dict | None, str | None]:
 
     if event_type in ("LIKE", "COMMENT") and not post_id:
         motivos.append(f"{event_type} debe tener post_id")
+
+    # Mas politicas de la red social: horario de EMAIL, prioridad de FOLLOW
+    # y version minima para SENT.
+
+    # 1. EMAIL no se envia entre 23:00 y 07:00 (politica de no molestar).
+    if delivery_channel == "EMAIL" and not pd.isna(created_at):
+        hora = created_at.to_pydatetime().hour
+        if hora >= 23 or hora < 7:
+            motivos.append("EMAIL fuera de horario permitido (07-23)")
+
+    # 2. FOLLOW no puede tener priority HIGH: un follow no es urgente.
+    if event_type == "FOLLOW" and priority == "HIGH":
+        motivos.append("FOLLOW no puede tener priority HIGH")
+
+    # 3. status SENT requiere app_version >= 1.0.0 (compatibilidad).
+    if status == "SENT" and app_version:
+        try:
+            major = int(app_version.split(".")[0])
+            if major < 1:
+                motivos.append("SENT requiere app_version >= 1.0.0")
+        except (ValueError, IndexError):
+            # Si el formato es invalido lo capta otra validacion futura.
+            pass
 
     if motivos:
         return None, "; ".join(motivos)
@@ -228,6 +257,13 @@ def validar(ruta_procesado: Path | None = None) -> dict:
         ruta_rechazados = DIR_RECHAZADOS / f"rechazados_validacion_{marca}.csv"
         pd.DataFrame(rechazados).to_csv(ruta_rechazados, index=False)
         log.info(f"Rechazados de validacion -> {ruta_rechazados.name}")
+
+        # Tambien insertar rechazos en Supabase (tabla rechazados).
+        try:
+            n = insertar_rechazados(rechazados, etapa="validacion")
+            log.info(f"Rechazados enviados a Supabase: {n}")
+        except Exception as e:
+            log.warning(f"No se pudo escribir rechazos en Supabase: {e}")
 
     porcentaje = (n_validos / n_total * 100) if n_total else 0
     reporte = {

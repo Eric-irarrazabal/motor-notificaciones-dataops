@@ -13,13 +13,13 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-# --- Rutas ---
+# Carpetas que usa esta etapa
 DIR_RAIZ = Path(__file__).resolve().parent.parent
 DIR_FUENTE = DIR_RAIZ / "data" / "source"
 DIR_CRUDOS = DIR_RAIZ / "data" / "raw"
 DIR_LOGS = DIR_RAIZ / "logs"
 
-# --- Logging ---
+# Log: a consola y a archivo
 DIR_LOGS.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
@@ -33,12 +33,21 @@ log = logging.getLogger("ingesta")
 
 
 def calcular_sha256(ruta: Path) -> str:
-    """Calcula un codigo hash para comprobar que el archivo no cambio."""
-    h = hashlib.sha256()
-    with open(ruta, "rb") as f:
-        for bloque in iter(lambda: f.read(8192), b""):
-            h.update(bloque)
-    return h.hexdigest()
+    """
+    Calcula la huella SHA-256 del archivo.
+    Sirve para comprobar que el archivo no cambio: si cambia una sola
+    letra, el hash cambia por completo.
+    """
+    hasher = hashlib.sha256()
+    with open(ruta, "rb") as archivo:
+        # Leemos el archivo por bloques de 8 KB en vez de cargarlo entero,
+        # asi funciona igual aunque el archivo sea muy grande.
+        while True:
+            bloque = archivo.read(8192)
+            if not bloque:        # se acabo el archivo
+                break
+            hasher.update(bloque)
+    return hasher.hexdigest()
 
 
 def contar_filas_csv(ruta: Path) -> int:
@@ -77,8 +86,8 @@ def ingestar_csv(nombre_archivo: str = "02_notifications_raw_events.csv") -> dic
     }
 
     ruta_manifest = DIR_CRUDOS / f"manifest_{marca_tiempo}.json"
-    with open(ruta_manifest, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    with open(ruta_manifest, "w", encoding="utf-8") as archivo:
+        json.dump(manifest, archivo, indent=2, ensure_ascii=False)
 
     log.info(
         f"Ingesta OK | filas={n_filas} | sha256={hash_archivo[:12]} | "

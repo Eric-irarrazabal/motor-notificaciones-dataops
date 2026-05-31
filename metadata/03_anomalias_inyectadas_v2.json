@@ -1,0 +1,1502 @@
+[
+  {
+    "row_number_csv": 1798,
+    "notification_id": "N01476",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1998,
+    "notification_id": "N01657",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1961,
+    "notification_id": "N00134",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1894,
+    "notification_id": "N01450",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1783,
+    "notification_id": "N00956",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1820,
+    "notification_id": "N01196",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1782,
+    "notification_id": "N01112",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1830,
+    "notification_id": "N01224",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1967,
+    "notification_id": "N01444",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1788,
+    "notification_id": "N01257",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1975,
+    "notification_id": "N00566",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1927,
+    "notification_id": "N01067",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1792,
+    "notification_id": "N01077",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1849,
+    "notification_id": "N00736",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1877,
+    "notification_id": "N00873",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1911,
+    "notification_id": "N00800",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1868,
+    "notification_id": "N01239",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1826,
+    "notification_id": "N00579",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1755,
+    "notification_id": "N01038",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1902,
+    "notification_id": "N01168",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1990,
+    "notification_id": "N01225",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1746,
+    "notification_id": "N00453",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1715,
+    "notification_id": "N00120",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1703,
+    "notification_id": "N00063",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1795,
+    "notification_id": "N00757",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1898,
+    "notification_id": "N00218",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1959,
+    "notification_id": "N01211",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1780,
+    "notification_id": "N01288",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1736,
+    "notification_id": "N01436",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1937,
+    "notification_id": "N01497",
+    "tipo_anomalia": "duplicado_notification_id"
+  },
+  {
+    "row_number_csv": 1749,
+    "notification_id": "N01748",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1705,
+    "notification_id": "N01704",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1915,
+    "notification_id": "N01914",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1865,
+    "notification_id": "N01864",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1968,
+    "notification_id": "N01967",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1767,
+    "notification_id": "N01766",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1752,
+    "notification_id": "N01751",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1799,
+    "notification_id": "N01798",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1907,
+    "notification_id": "N01906",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1832,
+    "notification_id": "N01831",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1824,
+    "notification_id": "N01823",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1884,
+    "notification_id": "N01883",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1924,
+    "notification_id": "N01923",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1840,
+    "notification_id": "N01839",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1920,
+    "notification_id": "N01919",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1822,
+    "notification_id": "N01821",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1779,
+    "notification_id": "N01778",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1945,
+    "notification_id": "N01944",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1707,
+    "notification_id": "N01706",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1950,
+    "notification_id": "N01949",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1963,
+    "notification_id": "N01962",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1706,
+    "notification_id": "N01705",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1970,
+    "notification_id": "N01969",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1789,
+    "notification_id": "N01788",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1861,
+    "notification_id": "N01860",
+    "tipo_anomalia": "timestamp_formato_invalido"
+  },
+  {
+    "row_number_csv": 1793,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1836,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1726,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1934,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1969,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1734,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1862,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1839,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1859,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1901,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1814,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1917,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1785,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1996,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1784,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1760,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1770,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1718,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1864,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1941,
+    "notification_id": "",
+    "tipo_anomalia": "notification_id_vacio"
+  },
+  {
+    "row_number_csv": 1739,
+    "notification_id": "N01738",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1794,
+    "notification_id": "N01793",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1979,
+    "notification_id": "N01978",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1829,
+    "notification_id": "N01828",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1886,
+    "notification_id": "N01885",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1702,
+    "notification_id": "N01701",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1883,
+    "notification_id": "N01882",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1879,
+    "notification_id": "N01878",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1790,
+    "notification_id": "N01789",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1888,
+    "notification_id": "N01887",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1741,
+    "notification_id": "N01740",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1833,
+    "notification_id": "N01832",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1966,
+    "notification_id": "N01965",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1719,
+    "notification_id": "N01718",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1999,
+    "notification_id": "N01998",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1997,
+    "notification_id": "N01996",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1834,
+    "notification_id": "N01833",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1869,
+    "notification_id": "N01868",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1811,
+    "notification_id": "N01810",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1992,
+    "notification_id": "N01991",
+    "tipo_anomalia": "event_type_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1810,
+    "notification_id": "N01809",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1845,
+    "notification_id": "N01844",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1835,
+    "notification_id": "N01834",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1812,
+    "notification_id": "N01811",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1954,
+    "notification_id": "N01953",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1925,
+    "notification_id": "N01924",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1916,
+    "notification_id": "N01915",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1913,
+    "notification_id": "N01912",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1777,
+    "notification_id": "N01776",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1973,
+    "notification_id": "N01972",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1892,
+    "notification_id": "N01891",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1987,
+    "notification_id": "N01986",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1850,
+    "notification_id": "N01849",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1763,
+    "notification_id": "N01762",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1978,
+    "notification_id": "N01977",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1818,
+    "notification_id": "N01817",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1756,
+    "notification_id": "N01755",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1964,
+    "notification_id": "N01963",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1871,
+    "notification_id": "N01870",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1742,
+    "notification_id": "N01741",
+    "tipo_anomalia": "device_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1960,
+    "notification_id": "N01959",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1897,
+    "notification_id": "N01896",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1721,
+    "notification_id": "N01720",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1815,
+    "notification_id": "N01814",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1735,
+    "notification_id": "N01734",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1873,
+    "notification_id": "N01872",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1843,
+    "notification_id": "N01842",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1744,
+    "notification_id": "N01743",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1821,
+    "notification_id": "N01820",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1797,
+    "notification_id": "N01796",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1816,
+    "notification_id": "N01815",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1891,
+    "notification_id": "N01890",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1991,
+    "notification_id": "N01990",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1753,
+    "notification_id": "N01752",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1733,
+    "notification_id": "N01732",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1738,
+    "notification_id": "N01737",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1946,
+    "notification_id": "N01945",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1949,
+    "notification_id": "N01948",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1712,
+    "notification_id": "N01711",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1857,
+    "notification_id": "N01856",
+    "tipo_anomalia": "delivery_channel_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1887,
+    "notification_id": "N01886",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1805,
+    "notification_id": "N01804",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1989,
+    "notification_id": "N01988",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1933,
+    "notification_id": "N01932",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1983,
+    "notification_id": "N01982",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1837,
+    "notification_id": "N01836",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1740,
+    "notification_id": "N01739",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1858,
+    "notification_id": "N01857",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1743,
+    "notification_id": "N01742",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1781,
+    "notification_id": "N01780",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1714,
+    "notification_id": "N01713",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1914,
+    "notification_id": "N01913",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1723,
+    "notification_id": "N01722",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1875,
+    "notification_id": "N01874",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1981,
+    "notification_id": "N01980",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1895,
+    "notification_id": "N01894",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1903,
+    "notification_id": "N01902",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1725,
+    "notification_id": "N01724",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 2001,
+    "notification_id": "N02000",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1766,
+    "notification_id": "N01765",
+    "tipo_anomalia": "priority_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1988,
+    "notification_id": "N01987",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1980,
+    "notification_id": "N01979",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1880,
+    "notification_id": "N01879",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1906,
+    "notification_id": "N01905",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1828,
+    "notification_id": "N01827",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1813,
+    "notification_id": "N01812",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1720,
+    "notification_id": "N01719",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1717,
+    "notification_id": "N01716",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1919,
+    "notification_id": "N01918",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1935,
+    "notification_id": "N01934",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1841,
+    "notification_id": "N01840",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1846,
+    "notification_id": "N01845",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1995,
+    "notification_id": "N01994",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1774,
+    "notification_id": "N01773",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1727,
+    "notification_id": "N01726",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1838,
+    "notification_id": "N01837",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1772,
+    "notification_id": "N01771",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1754,
+    "notification_id": "N01753",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1870,
+    "notification_id": "N01869",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1825,
+    "notification_id": "N01824",
+    "tipo_anomalia": "status_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1809,
+    "notification_id": "N01808",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1930,
+    "notification_id": "N01929",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1823,
+    "notification_id": "N01822",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1958,
+    "notification_id": "N01957",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1882,
+    "notification_id": "N01881",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1890,
+    "notification_id": "N01889",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1761,
+    "notification_id": "N01760",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1955,
+    "notification_id": "N01954",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1751,
+    "notification_id": "N01750",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1931,
+    "notification_id": "N01930",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1904,
+    "notification_id": "N01903",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1947,
+    "notification_id": "N01946",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1889,
+    "notification_id": "N01888",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1771,
+    "notification_id": "N01770",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1856,
+    "notification_id": "N01855",
+    "tipo_anomalia": "country_fuera_de_dominio"
+  },
+  {
+    "row_number_csv": 1921,
+    "notification_id": "N01920",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1765,
+    "notification_id": "N01764",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1923,
+    "notification_id": "N01922",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1804,
+    "notification_id": "N01803",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1731,
+    "notification_id": "N01730",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1709,
+    "notification_id": "N01708",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1994,
+    "notification_id": "N01993",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1791,
+    "notification_id": "N01790",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1745,
+    "notification_id": "N01744",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1952,
+    "notification_id": "N01951",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1801,
+    "notification_id": "N01800",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1728,
+    "notification_id": "N01727",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1710,
+    "notification_id": "N01709",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1929,
+    "notification_id": "N01928",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1953,
+    "notification_id": "N01952",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1758,
+    "notification_id": "N01757",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1962,
+    "notification_id": "N01961",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1939,
+    "notification_id": "N01938",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1759,
+    "notification_id": "N01758",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1977,
+    "notification_id": "N01976",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1876,
+    "notification_id": "N01875",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1926,
+    "notification_id": "N01925",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1708,
+    "notification_id": "N01707",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1874,
+    "notification_id": "N01873",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1817,
+    "notification_id": "N01816",
+    "tipo_anomalia": "self_event"
+  },
+  {
+    "row_number_csv": 1806,
+    "notification_id": "N01805",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1860,
+    "notification_id": "N01859",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1724,
+    "notification_id": "N01723",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1951,
+    "notification_id": "N01950",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1847,
+    "notification_id": "N01846",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1776,
+    "notification_id": "N01775",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1885,
+    "notification_id": "N01884",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1800,
+    "notification_id": "N01799",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1881,
+    "notification_id": "N01880",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1957,
+    "notification_id": "N01956",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1866,
+    "notification_id": "N01865",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1748,
+    "notification_id": "N01747",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1730,
+    "notification_id": "N01729",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1942,
+    "notification_id": "N01941",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1722,
+    "notification_id": "N01721",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1872,
+    "notification_id": "N01871",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1982,
+    "notification_id": "N01981",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1831,
+    "notification_id": "N01830",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1974,
+    "notification_id": "N01973",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1972,
+    "notification_id": "N01971",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1912,
+    "notification_id": "N01911",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1803,
+    "notification_id": "N01802",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1757,
+    "notification_id": "N01756",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1986,
+    "notification_id": "N01985",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1778,
+    "notification_id": "N01777",
+    "tipo_anomalia": "latency_negativa"
+  },
+  {
+    "row_number_csv": 1932,
+    "notification_id": "N01931",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1863,
+    "notification_id": "N01862",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1852,
+    "notification_id": "N01851",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1908,
+    "notification_id": "N01907",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1922,
+    "notification_id": "N01921",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1851,
+    "notification_id": "N01850",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1940,
+    "notification_id": "N01939",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1893,
+    "notification_id": "N01892",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1737,
+    "notification_id": "N01736",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1819,
+    "notification_id": "N01818",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1729,
+    "notification_id": "N01728",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1855,
+    "notification_id": "N01854",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1985,
+    "notification_id": "N01984",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1910,
+    "notification_id": "N01909",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1936,
+    "notification_id": "N01935",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1807,
+    "notification_id": "N01806",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1909,
+    "notification_id": "N01908",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1878,
+    "notification_id": "N01877",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1853,
+    "notification_id": "N01852",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1900,
+    "notification_id": "N01899",
+    "tipo_anomalia": "fecha_futura"
+  },
+  {
+    "row_number_csv": 1786,
+    "notification_id": "N01785",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1775,
+    "notification_id": "N01774",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1844,
+    "notification_id": "N01843",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1867,
+    "notification_id": "N01866",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1796,
+    "notification_id": "N01795",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1971,
+    "notification_id": "N01970",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1928,
+    "notification_id": "N01927",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1854,
+    "notification_id": "N01853",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 2000,
+    "notification_id": "N01999",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1905,
+    "notification_id": "N01904",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1848,
+    "notification_id": "N01847",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1764,
+    "notification_id": "N01763",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1769,
+    "notification_id": "N01768",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1762,
+    "notification_id": "N01761",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1993,
+    "notification_id": "N01992",
+    "tipo_anomalia": "regla_negocio_email_horario_nocturno"
+  },
+  {
+    "row_number_csv": 1984,
+    "notification_id": "N01983",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1899,
+    "notification_id": "N01898",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1773,
+    "notification_id": "N01772",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1711,
+    "notification_id": "N01710",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1948,
+    "notification_id": "N01947",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1918,
+    "notification_id": "N01917",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1976,
+    "notification_id": "N01975",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1842,
+    "notification_id": "N01841",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1750,
+    "notification_id": "N01749",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1704,
+    "notification_id": "N01703",
+    "tipo_anomalia": "regla_negocio_follow_high_priority"
+  },
+  {
+    "row_number_csv": 1787,
+    "notification_id": "N01786",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1943,
+    "notification_id": "N01942",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1732,
+    "notification_id": "N01731",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1896,
+    "notification_id": "N01895",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1768,
+    "notification_id": "N01767",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1944,
+    "notification_id": "N01943",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1808,
+    "notification_id": "N01807",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1956,
+    "notification_id": "N01955",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1713,
+    "notification_id": "N01712",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1827,
+    "notification_id": "N01826",
+    "tipo_anomalia": "regla_negocio_sent_con_version_vieja"
+  },
+  {
+    "row_number_csv": 1716,
+    "notification_id": "N01715",
+    "tipo_anomalia": "like_o_comment_sin_post_id"
+  },
+  {
+    "row_number_csv": 1747,
+    "notification_id": "N01746",
+    "tipo_anomalia": "like_o_comment_sin_post_id"
+  },
+  {
+    "row_number_csv": 1938,
+    "notification_id": "N01937",
+    "tipo_anomalia": "like_o_comment_sin_post_id"
+  },
+  {
+    "row_number_csv": 1802,
+    "notification_id": "N01801",
+    "tipo_anomalia": "like_o_comment_sin_post_id"
+  },
+  {
+    "row_number_csv": 1965,
+    "notification_id": "N01964",
+    "tipo_anomalia": "like_o_comment_sin_post_id"
+  }
+]
