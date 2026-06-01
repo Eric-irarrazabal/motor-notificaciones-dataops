@@ -85,7 +85,6 @@ def limpiar(ruta_crudo: Path | None = None) -> dict:
     log.info(f"Filas iniciales: {n_inicial}")
 
     # Quitar espacios al inicio y al final en todas las columnas de texto.
-    # ("object" y "string" son los dos nombres que usa pandas para texto.)
     for col in df.select_dtypes(include=["object", "string"]).columns:
         df[col] = df[col].str.strip()
 
@@ -106,7 +105,7 @@ def limpiar(ruta_crudo: Path | None = None) -> dict:
 
     # Marcar como duplicada toda fila cuyo notification_id ya aparecio antes.
     # keep="first" deja pasar la primera y marca solo las repetidas.
-    # El notna() evita marcar las vacias (esas las revisa la validacion).
+    # El notna() evita marcar las vacias.
     es_duplicado = (
         df.duplicated(subset=["notification_id"], keep="first")
         & df["notification_id"].notna()

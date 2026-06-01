@@ -18,7 +18,6 @@ COPY pipeline.py .
 COPY src/ ./src/
 
 # Las carpetas data/ y logs/ se reciben como volumenes desde el host.
-# Igual las creamos por si el contenedor se ejecuta sin volumen montado.
 RUN mkdir -p data/source data/raw data/processed data/validated data/rejected data/reports logs
 
 # Por defecto se corre el pipeline completo. Cada servicio del compose

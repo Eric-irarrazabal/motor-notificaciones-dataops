@@ -2,7 +2,7 @@
 src/seguridad.py
 Funciones simples para proteger datos personales.
 
-En este proyecto se cifran los identificadores de usuario (user_id y
+En este proyecto se cifran los ids de usuario (user_id y
 source_user_id) antes de guardarlos. La clave se lee desde el archivo .env.
 
 Usamos Fernet, una herramienta de la libreria cryptography. Cifra y

@@ -1,5 +1,3 @@
-# Archivos y carpetas que NO deben entrar al contexto de build.
-# Esto hace los builds mas rapidos y evita filtrar datos sensibles.
 
 # Credenciales y configuracion local.
 .env

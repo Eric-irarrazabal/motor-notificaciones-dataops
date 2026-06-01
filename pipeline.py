@@ -31,9 +31,8 @@ logging.basicConfig(
 )
 log = logging.getLogger("pipeline_notificaciones")
 
-# Importamos las etapas despues de agregar src/ al sys.path (lineas de arriba),
-# para que Python las encuentre tanto al correr "python pipeline.py" como al
-# ejecutar cada etapa por separado.
+# Importamos las etapas despues de agregar src/ al sys.path
+# Python las encuentra tanto al correr "python pipeline.py" como al ejecutar cada etapa por separado.
 from carga import cargar
 from ingesta import ingestar_csv
 from kpis import calcular_kpis
@@ -91,9 +90,18 @@ def main():
 
         cumplen = sum(1 for indicador in kpis["kpis"].values() if indicador["cumple"])
         log.info(f"KPIs       | {cumplen}/5 dentro de la meta")
+
+        nombres_kpi = {
+            "completitud_pct": "Completitud de datos (%)",
+            "tasa_rechazo_pct": "Tasa de rechazo (%)",
+            "cumplimiento_sla_pct": "Cumplimiento SLA (%)",
+            "latencia_promedio_ms": "Latencia promedio (ms)",
+            "latencia_p95_ms": "Latencia P95 (ms)",
+        }
         for nombre, kpi in kpis["kpis"].items():
+            etiqueta = nombres_kpi.get(nombre, nombre)
             marca = "[OK]" if kpi["cumple"] else "[ALERTA]"
-            log.info(f"             {marca} {nombre}: {kpi['valor']} (meta: {kpi['slo']})")
+            log.info(f"             {marca} {etiqueta}: {kpi['valor']} (meta: {kpi['slo']})")
 
         log.info("-" * 64)
         log.info(f"Duracion total: {duracion:.2f}s")

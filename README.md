@@ -1,101 +1,77 @@
 # Motor de Notificaciones - Pipeline DataOps
 
-Proyecto academico para la asignatura Gestion de Datos para IA, ITY1101.
+Este proyecto fue desarrollado para la asignatura Gestion de Datos para IA
+(ITY1101). La idea principal es tomar eventos de una red social, como likes,
+comentarios y follows, y pasarlos por un flujo de DataOps hasta dejar una
+salida confiable para notificaciones.
 
-El objetivo es procesar eventos de una red social, como likes, comentarios
-y follows, para generar un archivo final de notificaciones limpias,
-validadas y con datos personales protegidos.
+El trabajo no consiste solamente en leer un CSV y moverlo a otra carpeta. En
+el camino se revisa la calidad de los datos, se separan los registros que no
+cumplen las reglas del caso, se protegen identificadores de usuario y se deja
+evidencia de lo que paso en cada etapa.
 
-## 1. Problema
+## Que problema resuelve
 
-El archivo original trae datos con errores:
+El archivo original viene con datos que pueden fallar por distintos motivos:
+registros duplicados, fechas mal formateadas, valores fuera de dominio,
+identificadores vacios, latencias negativas o comentarios que no traen
+`comment_id`, entre otros casos.
 
-- Notificaciones duplicadas.
-- Fechas con formato incorrecto.
-- Valores que no corresponden al dominio esperado.
-- Identificadores vacios.
-- Latencias negativas.
-- Comentarios sin `comment_id`.
+Si esos errores llegan directo al destino final, despues es mas dificil saber
+donde se produjo el problema. Por eso el pipeline separa el proceso en etapas.
+Cada una deja archivos, logs o reportes que ayudan a revisar que se hizo y que
+datos quedaron fuera.
 
-El pipeline separa el trabajo en etapas para que sea mas facil detectar
-en que parte aparece cada problema.
+## Como trabaja el pipeline
 
-## 2. Etapas del pipeline
+El flujo completo se ejecuta desde `pipeline.py`, que llama las cinco etapas en
+orden: ingesta, limpieza, validacion, carga y calculo de KPIs.
 
-```text
-data/source/
-     |
-     v
-Ingesta -> Limpieza -> Validacion -> Carga -> KPIs
-     |          |           |          |       |
-     v          v           v          v       v
-data/raw/  processed/  validated/  destino  reports/
-                         rejected/
-```
+En la ingesta se toma el CSV original desde `data/source/`, se copia a
+`data/raw/` y se crea un manifest con informacion basica del archivo: cantidad
+de filas, fecha de ingesta y hash SHA-256. Ese manifest sirve como una primera
+huella del dato que entro al proceso.
 
-### Ingesta
+Despues viene la limpieza. En esta parte se normalizan valores simples, por
+ejemplo espacios sobrantes, categorias en mayusculas, fechas, booleanos y
+latencias numericas. Tambien se eliminan duplicados por `notification_id` y
+fechas que no se pueden interpretar. Lo que se puede seguir procesando queda en
+`data/processed/`; lo que no, queda separado en `data/rejected/`.
 
-Lee el CSV original, lo copia a `data/raw/` y genera un archivo manifest
-con cantidad de filas, fecha de ingesta y hash SHA-256.
+La validacion revisa las reglas de negocio fila por fila. Algunas reglas son de
+dominio, como aceptar solo `LIKE`, `COMMENT` o `FOLLOW` en `event_type`, y otras
+son de coherencia, como impedir que `user_id` y `source_user_id` sean iguales.
+Tambien se valida que un `COMMENT` tenga `comment_id`, que la fecha no sea
+futura, que la latencia no sea negativa y que campos como `device`,
+`delivery_channel`, `priority`, `status` y `country` esten dentro de los valores
+esperados. Los registros validos quedan en `data/validated/` y los rechazados se
+guardan con el motivo del rechazo.
 
-### Limpieza
+La carga toma los registros validos, cifra `user_id` y `source_user_id` con
+Fernet y los envia a Supabase, usando PostgreSQL como destino. Ademas, deja una
+copia local en `data/validated/destino_final.csv`, que funciona como respaldo
+para auditoria y para calcular los indicadores. La carga es idempotente: si una
+`notification_id` ya existe en el destino, no se vuelve a insertar.
 
-Corrige formatos simples:
+Al final se calculan KPIs para revisar rapidamente el resultado de la corrida.
+El reporte queda en `data/reports/kpis_latest.json` y considera completitud,
+tasa de rechazo, cumplimiento de SLA, latencia promedio y latencia percentil 95.
 
-- Quita espacios.
-- Pasa categorias a mayusculas.
-- Convierte `seen` a booleano.
-- Convierte `created_at` a fecha.
-- Convierte `latency_ms` a numero.
-- Quita duplicados y fechas imposibles.
-
-### Validacion
-
-Revisa fila por fila usando reglas escritas con `if`.
-
-Ejemplos:
-
-- `event_type` debe ser `LIKE`, `COMMENT` o `FOLLOW`.
-- `device` debe ser `MOBILE` o `WEB`.
-- `created_at` no puede ser una fecha futura.
-- `latency_ms` no puede ser negativo.
-- Si el evento es `COMMENT`, debe tener `comment_id`.
-- `user_id` y `source_user_id` no pueden ser iguales.
-
-Las filas malas se guardan en `data/rejected/` con el motivo.
-
-### Carga
-
-Toma los registros validos, cifra `user_id` y `source_user_id` con Fernet
-y los guarda en `data/validated/destino_final.csv`.
-
-Si se ejecuta otra vez, no duplica notificaciones que ya estaban cargadas.
-
-### KPIs
-
-Calcula indicadores simples para revisar el resultado:
-
-- Completitud.
-- Tasa de rechazo.
-- Cumplimiento de latencia.
-- Latencia promedio.
-- Latencia percentil 95.
-
-El reporte queda en `data/reports/kpis_latest.json`.
-
-## 3. Estructura del repositorio
+## Estructura del proyecto
 
 ```text
 motor-notificaciones-dataops/
   data/
-    source/       CSV original
-    raw/          copia del CSV y manifest
-    processed/    archivo limpio
-    validated/    registros validos y destino final
-    rejected/     registros rechazados
+    source/       CSV original de entrada
+    raw/          copia de ingesta y manifest
+    processed/    datos limpios y metricas de limpieza
+    validated/    datos validos y respaldo del destino final
+    rejected/     filas rechazadas con su motivo
     reports/      KPIs y auditoria de carga
-  logs/           logs de ejecucion
-  metadata/       descripcion de datos y anomalias
+  logs/           logs generados por cada etapa
+  metadata/       descripcion del dataset y anomalias inyectadas
+  scripts/        generacion del dataset de prueba
+  sql/            schema para crear las tablas en Supabase
   src/
     ingesta.py
     limpieza.py
@@ -103,39 +79,47 @@ motor-notificaciones-dataops/
     carga.py
     kpis.py
     seguridad.py
+    db.py
   pipeline.py
   requirements.txt
 ```
 
-## 4. Como ejecutar
+## Configuracion antes de ejecutar
 
-Instalar dependencias:
+Primero se instalan las dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Crear el archivo `.env` usando `.env.example` como base.
+Luego se crea el archivo `.env` tomando como base `.env.example`. Este proyecto
+necesita dos variables:
 
-Generar una clave Fernet:
+```text
+FERNET_KEY=clave_generada
+DATABASE_URL=cadena_de_conexion_a_supabase
+```
+
+La clave Fernet se puede generar con:
 
 ```bash
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
-Guardar la clave en `.env`:
+Para Supabase, antes de correr la carga hay que crear las tablas. El archivo
+`sql/schema.sql` se puede pegar y ejecutar una vez desde el SQL Editor del
+dashboard de Supabase.
 
-```text
-FERNET_KEY=clave_generada
-```
+## Ejecucion local
 
-Ejecutar todo el pipeline:
+Para correr todo el proceso:
 
 ```bash
 python pipeline.py
 ```
 
-Tambien se pueden ejecutar las etapas por separado:
+Tambien se puede ejecutar una etapa puntual cuando se quiere revisar algo por
+separado:
 
 ```bash
 python src/ingesta.py
@@ -145,65 +129,61 @@ python src/carga.py
 python src/kpis.py
 ```
 
-## 5. Anomalias detectadas
+Lo normal es ejecutar primero el pipeline completo y despues revisar las
+carpetas `data/` y `logs/` para confirmar que la corrida dejo los archivos
+esperados.
 
-El dataset incluye 12 anomalias documentadas en
-`metadata/03_anomalias_inyectadas.json`.
+## Anomalias consideradas
 
-El pipeline detecta:
+El dataset incluye anomalias documentadas en
+`metadata/03_anomalias_inyectadas.json` y
+`metadata/03_anomalias_inyectadas_v2.json`. Entre las principales estan:
 
-- `notification_id` duplicado.
-- `event_type=SHARE` fuera de dominio.
-- Timestamp con formato imposible.
-- Timestamp futuro.
+- `notification_id` duplicado o vacio.
+- `event_type` fuera de dominio, por ejemplo `SHARE`.
+- Timestamp con formato incorrecto o fecha futura.
 - `source_user_id` vacio.
-- Evento donde `user_id == source_user_id`.
-- `device=SMART_TV` fuera de dominio.
-- `delivery_channel=SMS` fuera de dominio.
+- Evento donde `user_id` y `source_user_id` son iguales.
+- `device` fuera de dominio, por ejemplo `SMART_TV`.
+- `delivery_channel` fuera de dominio, por ejemplo `SMS`.
 - `latency_ms` negativo.
-- `COMMENT` sin `comment_id`.
-- `seen` no booleano.
-- `notification_id` vacio.
+- Evento `COMMENT` sin `comment_id`.
+- Valor de `seen` que no se puede convertir a booleano.
 
-## 6. Seguridad
+La intencion es que estas situaciones no se pierdan silenciosamente. Si un
+registro falla, queda guardado con su motivo para poder revisarlo despues.
 
-El proyecto usa tres medidas principales:
+## Seguridad y datos personales
 
-- La clave de cifrado queda en `.env` y no se sube al repositorio.
-- Los ids de usuario se cifran antes de guardarse en el destino final.
-- En los logs se muestra un identificador enmascarado, por ejemplo `U***`.
+Los campos `user_id` y `source_user_id` permiten identificar usuarios dentro del
+sistema, por eso no se cargan en claro al destino final. Antes de insertar en
+Supabase, ambos valores se cifran con Fernet y se reemplazan por
+`user_id_enc` y `source_user_id_enc`.
 
-Esto se relaciona con la proteccion de datos personales, porque `user_id`
-y `source_user_id` permiten identificar usuarios dentro del sistema.
+La clave de cifrado vive en `.env`, archivo que no deberia subirse al
+repositorio. En los logs, cuando se muestra un identificador como referencia, se
+usa una version enmascarada para no exponer el valor completo.
 
-## 7. Metodologia
+## Uso con Docker
 
-Se usa una organizacion mixta:
+El proyecto tambien puede correr con Docker. En este caso hay un servicio por
+cada etapa del pipeline, todos usando la misma imagen base. Las carpetas
+`data/` y `logs/` se montan como volumenes para que cada etapa pueda leer lo que
+dejo la anterior.
 
-- Predictiva para ordenar las etapas principales del pipeline.
-- Adaptativa para ajustar reglas de limpieza, validacion y KPIs a medida
-  que se revisan los datos.
+Requisitos:
 
-## 8. Ejecucion con Docker
+- Docker Desktop instalado y en ejecucion.
+- Archivo `.env` en la raiz del proyecto con `FERNET_KEY` y `DATABASE_URL`.
+- Tablas creadas en Supabase usando `sql/schema.sql`.
 
-El proyecto incluye una version contenerizada con un contenedor por
-etapa. Cada etapa corre en su propio contenedor y comparte el mismo
-volumen para `data/` y `logs/`.
-
-### Requisitos
-
-- Docker Desktop instalado y corriendo.
-- Archivo `.env` con `FERNET_KEY` en la raiz del proyecto.
-
-### Comandos basicos
-
-Construir las imagenes:
+Construir la imagen:
 
 ```bash
 docker compose build
 ```
 
-Ejecutar el pipeline completo (las 5 etapas en orden):
+Ejecutar el pipeline completo:
 
 ```bash
 docker compose up
@@ -225,27 +205,30 @@ Limpiar contenedores entre corridas:
 docker compose down
 ```
 
-### Arquitectura
+## Sobre Render
 
-```text
-ingesta -> limpieza -> validacion -> carga -> kpis
-   (cada flecha es un depends_on con service_completed_successfully)
+Por ahora el proyecto esta preparado para ejecucion local, Docker y carga a
+Supabase. La subida a Render queda como una decision pendiente, porque depende
+de si se quiere dejar el pipeline ejecutandose como servicio, job manual o job
+programado.
 
-volumen compartido:
-  ./data  -> /app/data
-  ./logs  -> /app/logs
-```
+Si mas adelante se decide probar Render, lo principal seria revisar como se van
+a manejar las variables de entorno (`FERNET_KEY` y `DATABASE_URL`) y que pasara
+con los archivos generados en `data/` y `logs/`, ya que en una plataforma
+desplegada esos archivos no siempre se comportan igual que en una ejecucion
+local.
 
-Los cinco servicios usan la misma imagen base (`Dockerfile`) y solo
-cambian el comando que ejecutan. Las carpetas `data/` y `logs/` del
-host se montan dentro de cada contenedor, asi cada etapa lee los
-artefactos que dejo la anterior.
+## Metodologia de trabajo
 
-La clave de cifrado se inyecta por `env_file: .env` y nunca queda
-escrita en la imagen.
+El proyecto mezcla una organizacion predictiva con ajustes adaptativos. La parte
+predictiva esta en el orden del pipeline, porque las etapas se ejecutan siempre
+de la misma manera. La parte adaptativa aparece al revisar los datos y ajustar
+reglas de limpieza, validacion y KPIs segun las anomalias encontradas.
 
-## 9. Proximos pasos
+## Posibles mejoras
 
-- Agregar pruebas unitarias.
-- Guardar el destino final en una base de datos en vez de CSV.
-- Crear alertas automaticas cuando algun KPI no cumple la meta.
+- Agregar pruebas unitarias para las reglas de limpieza y validacion.
+- Guardar mas informacion historica de cada corrida.
+- Automatizar alertas cuando algun KPI no cumpla la meta.
+- Definir si el despliegue en Render aporta valor para el alcance final del
+  proyecto.

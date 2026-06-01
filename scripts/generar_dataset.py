@@ -262,9 +262,9 @@ def inyectar_like_sin_post(fila: dict) -> dict:
     return fila
 
 
-# ----------------------------------------------------------------------
+
 # PLAN DE INYECCION
-# ----------------------------------------------------------------------
+
 
 PLAN_ANOMALIAS = [
     # Categoria A: Estructurales (75)

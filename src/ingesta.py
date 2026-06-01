@@ -34,7 +34,7 @@ log = logging.getLogger("ingesta")
 
 def calcular_sha256(ruta: Path) -> str:
     """
-    Calcula la huella SHA-256 del archivo.
+    Calcula la huella (SHA-256) del archivo.
     Sirve para comprobar que el archivo no cambio: si cambia una sola
     letra, el hash cambia por completo.
     """

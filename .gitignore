@@ -16,3 +16,8 @@ logs/*
 !data/rejected/.gitkeep
 !data/reports/.gitkeep
 !logs/.gitkeep
+
+# Archivos de ayuda/estudio, no son parte del proyecto
+GUIA_DEFENSA_PROYECTO.html
+GUIA_DEFENSA_PROYECTO.pdf
+_check_tmp/

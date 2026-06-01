@@ -70,7 +70,7 @@ def cargar(ruta_validos: Path | None = None) -> dict:
     df = pd.read_csv(ruta_validos)
     n_entrada = len(df)
 
-    # 1. Cifrar identificadores antes de cargar (datos personales).
+    # Cifrar ids antes de cargar (datos personales).
     log.info("Cifrando identificadores de usuario")
     df["user_id_enc"] = df["user_id"].apply(cifrar)
     df["source_user_id_enc"] = df["source_user_id"].apply(cifrar)
@@ -80,10 +80,10 @@ def cargar(ruta_validos: Path | None = None) -> dict:
         ejemplo_enc = df["user_id_enc"].iloc[0][:30] + "..."
         log.info(f"Ejemplo cifrado: {ejemplo_user} -> {ejemplo_enc}")
 
-    # 2. Quitar las columnas en claro despues de cifrar.
+    # Quitar las columnas en claro despues de cifrar.
     df = df.drop(columns=["user_id", "source_user_id"])
 
-    # 3. Calcular cuantas filas son nuevas vs repetidas (idempotencia).
+    #Calcular cuantas filas son nuevas vs repetidas (idempotencia).
     log.info("Consultando notification_id existentes en Supabase")
     ids_actuales = df["notification_id"].astype(str).tolist()
     existentes = ids_existentes(ids_actuales)
@@ -91,23 +91,18 @@ def cargar(ruta_validos: Path | None = None) -> dict:
     n_nuevos = n_entrada - n_repetidos
     log.info(f"Idempotencia | nuevos={n_nuevos} | repetidos={n_repetidos}")
 
-    # 4. Insertar a Supabase (ON CONFLICT DO NOTHING evita duplicados).
+    #Insertar a Supabase.
     log.info("Insertando en Supabase...")
     filas = df.to_dict(orient="records")
-    # pandas deja algunos valores en tipos que psycopg2 no entiende
-    # (NaN, numpy.bool_, etc.), asi que los pasamos a tipos de Python.
     for fila in filas:
-        # post_id y comment_id pueden venir como NaN (float). Los dejamos en None.
         for columna in ("post_id", "comment_id"):
             if columna in fila and (fila[columna] is None or pd.isna(fila[columna])):
                 fila[columna] = None
-        # seen puede venir como texto o como bool: lo dejamos en bool de Python.
         if "seen" in fila:
             if isinstance(fila["seen"], str):
                 fila["seen"] = fila["seen"].lower() in ("true", "1")
             else:
                 fila["seen"] = bool(fila["seen"])
-        # latency_ms lo dejamos en entero (si no se puede, queda en 0).
         if "latency_ms" in fila and fila["latency_ms"] is not None:
             try:
                 fila["latency_ms"] = int(float(fila["latency_ms"]))
@@ -115,14 +110,14 @@ def cargar(ruta_validos: Path | None = None) -> dict:
                 fila["latency_ms"] = 0
     insertar_notificaciones(filas)
 
-    # 5. Confirmar total en destino consultando.
+    #Confirmar total en destino consultando.
     total_destino = contar_destino()
     log.info(
         f"Carga OK | insertados={n_nuevos} | repetidos={n_repetidos} | "
         f"total_destino={total_destino}"
     )
 
-    # 6. Respaldo local en CSV (copia de seguridad, ademas de lo que ya quedo en Supabase).
+    #Respaldo local en CSV (copia de seguridad, ademas de lo que ya quedo en Supabase).
     DIR_VALIDADOS.mkdir(parents=True, exist_ok=True)
     DIR_REPORTES.mkdir(parents=True, exist_ok=True)
     if DESTINO_FINAL_CSV.exists():
@@ -134,7 +129,7 @@ def cargar(ruta_validos: Path | None = None) -> dict:
         combinado = df
     combinado.to_csv(DESTINO_FINAL_CSV, index=False)
 
-    # 7. Auditoria en tabla Supabase y en CSV local.
+    #Auditoria en tabla Supabase y en CSV local.
     registro_auditoria = {
         "archivo_origen": ruta_validos.name,
         "filas_entrada": n_entrada,
@@ -148,7 +143,7 @@ def cargar(ruta_validos: Path | None = None) -> dict:
     except Exception as e:
         log.warning(f"No se pudo escribir load_audit en Supabase: {e}")
 
-    # Respaldo de auditoria en CSV.
+    #Respaldo de auditoria en CSV.
     registro_csv = dict(registro_auditoria)
     registro_csv["fecha_carga"] = datetime.now().isoformat(timespec="seconds")
     df_aud = pd.DataFrame([registro_csv])

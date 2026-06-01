@@ -242,7 +242,7 @@ def validar(ruta_procesado: Path | None = None) -> dict:
         else:
             validos.append(datos_validos)
 
-    # --- Guardar resultados ---
+    # Guardar resultados
     DIR_VALIDADOS.mkdir(parents=True, exist_ok=True)
     DIR_RECHAZADOS.mkdir(parents=True, exist_ok=True)
     marca = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -258,7 +258,7 @@ def validar(ruta_procesado: Path | None = None) -> dict:
         pd.DataFrame(rechazados).to_csv(ruta_rechazados, index=False)
         log.info(f"Rechazados de validacion -> {ruta_rechazados.name}")
 
-        # Tambien insertar rechazos en Supabase (tabla rechazados).
+        #Insertar rechazos en Supabase (tabla rechazados).
         try:
             n = insertar_rechazados(rechazados, etapa="validacion")
             log.info(f"Rechazados enviados a Supabase: {n}")

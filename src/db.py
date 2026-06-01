@@ -38,8 +38,7 @@ def insertar_notificaciones(filas: list[dict]) -> int:
     """
     Inserta una lista de filas en la tabla notificaciones.
 
-    Usa INSERT ... ON CONFLICT (notification_id) DO NOTHING: si una
-    notification_id ya existe en la tabla, esa fila se ignora y no se
+    si una notification_id ya existe en la tabla, esa fila se ignora y no se
     duplica. Eso es lo que hace que la carga sea idempotente, es decir,
     que se pueda volver a correr sin crear datos repetidos.
 
