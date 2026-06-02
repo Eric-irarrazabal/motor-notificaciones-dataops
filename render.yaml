@@ -1,0 +1,31 @@
+# render.yaml - Blueprint de Render (https://render.com/docs/blueprint-spec)
+# Despliega el panel web del pipeline como Web Service en el plan FREE.
+#
+# Como usarlo:
+#   1. Render Dashboard -> New -> Blueprint
+#   2. Conecta este repositorio (rama main)
+#   3. Render leera este archivo y pedira los valores de FERNET_KEY y DATABASE_URL
+#   4. Apply -> se construye y despliega.
+#
+# El servicio se duerme tras 15 min de inactividad (normal en el plan free)
+# y vuelve a levantar solo en el siguiente acceso.
+
+services:
+  - type: web
+    name: motor-notificaciones-dataops
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # Secretos: se ingresan en el dashboard de Render, NO en este archivo.
+      - key: FERNET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false

@@ -1,7 +1,6 @@
-
 services:
 
-  # ---Ingesta ---
+  # --- Ingesta ---
   ingesta:
     build: .
     image: motor-notificaciones-dataops:latest
@@ -13,7 +12,7 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
 
-  # ---Limpieza ---
+  # --- Limpieza ---
   limpieza:
     image: motor-notificaciones-dataops:latest
     container_name: pipeline-limpieza
@@ -27,7 +26,7 @@ services:
       ingesta:
         condition: service_completed_successfully
 
-  # ---Validacion ---
+  # --- Validacion ---
   validacion:
     image: motor-notificaciones-dataops:latest
     container_name: pipeline-validacion
@@ -41,7 +40,7 @@ services:
       limpieza:
         condition: service_completed_successfully
 
-  # ---Carga ---
+  # --- Carga ---
   carga:
     image: motor-notificaciones-dataops:latest
     container_name: pipeline-carga
@@ -55,7 +54,7 @@ services:
       validacion:
         condition: service_completed_successfully
 
-  # ---KPIs ---
+  # --- KPIs ---
   kpis:
     image: motor-notificaciones-dataops:latest
     container_name: pipeline-kpis
@@ -68,3 +67,19 @@ services:
     depends_on:
       carga:
         condition: service_completed_successfully
+
+  # --- Panel web (dashboard) ---
+  # Levanta el panel en http://localhost:10000 para ejecutar el pipeline
+  # y ver logs / KPIs desde el navegador.  Uso:  docker compose up web
+  web:
+    build: .
+    image: motor-notificaciones-dataops:latest
+    container_name: pipeline-web
+    command: python server.py
+    env_file:
+      - .env
+    ports:
+      - "10000:10000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
