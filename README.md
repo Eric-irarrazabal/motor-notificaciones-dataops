@@ -70,7 +70,9 @@ motor-notificaciones-dataops/
     reports/      KPIs y auditoria de carga
   logs/           logs generados por cada etapa
   metadata/       descripcion del dataset y anomalias inyectadas
-  scripts/        generacion del dataset de prueba
+  scripts/
+    generar_dataset.py
+    reset_demo.py
   sql/            schema para crear las tablas en Supabase
   src/
     ingesta.py
@@ -81,6 +83,11 @@ motor-notificaciones-dataops/
     seguridad.py
     db.py
   pipeline.py
+  server.py       panel web para demo en Render
+  Dockerfile
+  docker-compose.yml
+  render.yaml
+  .env.example
   requirements.txt
 ```
 
@@ -189,6 +196,17 @@ Ejecutar el pipeline completo:
 docker compose up
 ```
 
+Levantar el panel web local:
+
+```bash
+docker compose up web
+```
+
+Despues se abre `http://localhost:10000`. La idea del panel es poder mostrar el
+proyecto de forma mas directa: ejecutar el pipeline, mirar los logs mientras
+corre y revisar los conteos que quedaron en Supabase sin tener que explicar todo
+solo desde la consola.
+
 Ejecutar solo una etapa:
 
 ```bash
@@ -205,18 +223,59 @@ Limpiar contenedores entre corridas:
 docker compose down
 ```
 
-## Sobre Render
+## Panel web y despliegue en Render
 
-Por ahora el proyecto esta preparado para ejecucion local, Docker y carga a
-Supabase. La subida a Render queda como una decision pendiente, porque depende
-de si se quiere dejar el pipeline ejecutandose como servicio, job manual o job
-programado.
+Ademas de la ejecucion local y por Docker, el proyecto incluye un panel web en
+`server.py`. Se agrego para que la demo sea mas clara: en vez de depender solo
+de la terminal, el pipeline se puede ejecutar desde un navegador y se pueden ver
+los logs y resultados en el mismo lugar.
 
-Si mas adelante se decide probar Render, lo principal seria revisar como se van
-a manejar las variables de entorno (`FERNET_KEY` y `DATABASE_URL`) y que pasara
-con los archivos generados en `data/` y `logs/`, ya que en una plataforma
-desplegada esos archivos no siempre se comportan igual que en una ejecucion
-local.
+Desde el panel se puede:
+
+- Ejecutar el pipeline completo.
+- Ejecutar etapas individuales: ingesta, limpieza, validacion, carga y KPIs.
+- Ver logs en vivo de la corrida actual.
+- Ver si `FERNET_KEY` y `DATABASE_URL` estan configuradas.
+- Consultar los conteos de Supabase en `notificaciones`, `rechazados` y
+  `load_audit`.
+- Mostrar los KPIs cuando ya existe el reporte `data/reports/kpis_latest.json`.
+
+El despliegue actual en Render se define en `render.yaml` como un **Web
+Service**. En palabras simples: Render levanta el panel web y deja el proyecto
+disponible en esta URL:
+
+```text
+https://motor-notificaciones-dataops.onrender.com
+```
+
+Durante el despliegue, Render instala las dependencias con:
+
+```bash
+pip install -r requirements.txt
+```
+
+y luego inicia el panel con:
+
+```bash
+python server.py
+```
+
+Para que el pipeline pueda cargar datos y cifrar identificadores, en el
+dashboard de Render se configuran las mismas variables que se usan localmente en
+`.env`:
+
+```text
+FERNET_KEY=clave_fernet
+DATABASE_URL=cadena_de_conexion_supabase
+```
+
+El panel tambien expone algunos endpoints simples que sirven para verificar la
+demo:
+
+- `/healthz`: responde `ok` si el servicio esta vivo.
+- `/api/status`: muestra el estado de ejecucion, configuracion y KPIs cargados.
+- `/api/db`: consulta conteos actuales en Supabase.
+- `/api/run`: permite ejecutar el pipeline completo o una etapa desde el panel.
 
 ## Metodologia de trabajo
 
@@ -229,6 +288,5 @@ reglas de limpieza, validacion y KPIs segun las anomalias encontradas.
 
 - Agregar pruebas unitarias para las reglas de limpieza y validacion.
 - Guardar mas informacion historica de cada corrida.
-- Automatizar alertas cuando algun KPI no cumpla la meta.
-- Definir si el despliegue en Render aporta valor para el alcance final del
-  proyecto.
+- Automatizar alertas externas cuando algun KPI no cumpla la meta.
+- Programar ejecuciones automaticas con un Cron Job en Render
