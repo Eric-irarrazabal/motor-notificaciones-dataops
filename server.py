@@ -20,6 +20,7 @@ Variables de entorno usadas por el pipeline (configurarlas en Render):
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -104,6 +105,16 @@ class EstadoEjecucion:
         with self.lock:
             offset = max(0, min(offset, len(self.lineas)))
             return self.lineas[offset:], len(self.lineas)
+
+    def limpiar(self):
+        """Vuelve al estado inicial (como recien arrancado)."""
+        with self.lock:
+            self.estado = "inactivo"
+            self.objetivo = None
+            self.inicio = None
+            self.fin = None
+            self.exit_code = None
+            self.lineas = []
 
 
 ESTADO = EstadoEjecucion()
@@ -193,6 +204,65 @@ def contar_supabase():
         return {"disponible": False, "motivo": str(e)}
 
 
+def resetear():
+    """Deja el entorno como una PRIMERA corrida:
+      1. Vacia las tablas de Supabase (notificaciones, rechazados, load_audit)
+         y reinicia sus secuencias.
+      2. Borra los archivos generados: data/raw, processed, validated,
+         rejected, reports (KPIs) y logs.
+    Conserva data/source (el CSV de entrada) para que el pipeline pueda
+    volver a correr desde cero.
+    """
+    resumen = {"db": None, "archivos_borrados": 0, "carpetas_limpiadas": []}
+
+    # 1) Vaciar tablas en Supabase
+    url = os.getenv("DATABASE_URL")
+    if url:
+        try:
+            import psycopg2
+            con = psycopg2.connect(url, connect_timeout=15)
+            con.autocommit = True
+            cur = con.cursor()
+            cur.execute(
+                "truncate table notificaciones, rechazados, load_audit "
+                "restart identity"
+            )
+            cur.close()
+            con.close()
+            resumen["db"] = "tablas vaciadas (notificaciones, rechazados, load_audit)"
+        except Exception as e:
+            resumen["db"] = f"error: {e}"
+    else:
+        resumen["db"] = "omitido (DATABASE_URL no definida)"
+
+    # 2) Borrar archivos generados (se conserva data/source)
+    objetivos = [
+        "data/raw", "data/processed", "data/validated",
+        "data/rejected", "data/reports", "logs",
+    ]
+    borrados = 0
+    for rel in objetivos:
+        carpeta = ROOT / rel
+        if not carpeta.exists():
+            continue
+        for p in carpeta.iterdir():
+            try:
+                if p.is_dir():
+                    shutil.rmtree(p)
+                else:
+                    p.unlink()
+                borrados += 1
+            except Exception:
+                pass
+        resumen["carpetas_limpiadas"].append(rel)
+    resumen["archivos_borrados"] = borrados
+
+    # 3) Reiniciar el estado y los logs en memoria, y recrear carpetas vacias
+    ESTADO.limpiar()
+    asegurar_dirs()
+    return resumen
+
+
 # --------------------------------------------------------------------------- #
 #  Frontend (HTML + CSS + JS en un solo archivo, servido como pagina estatica)
 # --------------------------------------------------------------------------- #
@@ -255,6 +325,8 @@ PAGINA = r"""<!doctype html>
   .btn-main{background:var(--accent); color:#fff; width:100%;
     box-shadow:0 4px 14px rgba(79,70,229,.30);}
   .btn-main:not(:disabled):hover{background:#4338ca;}
+  .btn-danger{background:#fff; color:var(--err); border:1px solid #fecaca; width:100%; margin-top:14px;}
+  .btn-danger:not(:disabled):hover{background:var(--err-soft);}
   .stages{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
   .chip{
     background:#f8fafc; border:1px solid var(--line); color:#334155;
@@ -331,6 +403,8 @@ PAGINA = r"""<!doctype html>
       </div>
       <p class="hint">El pipeline completo corre las 5 etapas en orden (equivale a <code>docker compose up</code>).
       Las etapas individuales equivalen a <code>docker compose run --rm &lt;etapa&gt;</code> y deben correrse en orden.</p>
+      <button id="reset" class="btn btn-danger">&#8635;&nbsp; Reset &middot; dejar como primera vez</button>
+      <p class="hint">Vacia las tablas de Supabase y borra logs, KPIs y datos generados. Conserva el CSV de entrada.</p>
     </div>
 
     <!-- Resumen -->
@@ -381,8 +455,12 @@ const KPI_LABELS = {
 function setBusy(b){
   corriendo = b;
   $("run-full").disabled = b;
+  $("reset").disabled = b;
   document.querySelectorAll(".chip").forEach(c => c.disabled = b);
 }
+
+const KPIS_VACIO = '<p class="empty">Aun no hay KPIs. Ejecuta el pipeline para generarlos.</p>';
+let lastKpis = "__init__";
 
 function badge(estado){
   const map = {inactivo:["", "Inactivo"], ejecutando:["ejecutando","Ejecutando..."],
@@ -408,7 +486,7 @@ function renderCfg(cfg){
 
 function renderKpis(kpis){
   const box = $("kpis");
-  if(!kpis || !kpis.kpis){ return; }
+  if(!kpis || !kpis.kpis){ box.innerHTML = KPIS_VACIO; return; }
   box.innerHTML = "";
   for(const [k, info] of Object.entries(kpis.kpis)){
     const cumple = !!info.cumple;
@@ -462,7 +540,8 @@ async function tickStatus(){
     $("s-obj").textContent = s.objetivo ? (s.objetivo === "completo" ? "Pipeline completo" : s.objetivo) : "—";
     $("s-dur").textContent = fmtDur(s.duracion);
     $("s-exit").textContent = s.exit_code == null ? "—" : s.exit_code;
-    if(s.kpis) renderKpis(s.kpis);
+    const kjson = JSON.stringify(s.kpis || null);
+    if(kjson !== lastKpis){ lastKpis = kjson; renderKpis(s.kpis); }
     const debeCorrer = s.estado === "ejecutando";
     if(debeCorrer !== corriendo){
       setBusy(debeCorrer);
@@ -503,6 +582,28 @@ $("run-full").addEventListener("click", ()=> run("completo"));
 document.querySelectorAll(".chip").forEach(c=>
   c.addEventListener("click", ()=> run(c.dataset.stage)));
 $("clear").addEventListener("click", ()=> $("console").innerHTML = "");
+
+$("reset").addEventListener("click", async ()=>{
+  if(corriendo) return;
+  const msg = "Esto vaciara las tablas de Supabase y borrara logs, KPIs y datos "
+            + "generados, dejando todo como una primera corrida.\n\n¿Continuar?";
+  if(!confirm(msg)) return;
+  $("reset").disabled = true;
+  $("reset").textContent = "Reiniciando...";
+  try{
+    const r = await fetch("/api/reset", {method:"POST"});
+    if(r.status === 409){ alert("Hay una ejecucion en curso. Espera a que termine."); }
+    else{
+      const d = await r.json();
+      $("console").innerHTML = ""; offset = 0; lastKpis = "__init__";
+      $("kpis").innerHTML = KPIS_VACIO;
+      await tickStatus(); await refreshDb();
+      const db = (d.resumen && d.resumen.db) ? d.resumen.db : "";
+      alert("Listo: entorno reiniciado como primera corrida.\n" + db);
+    }
+  }catch(e){ alert("No se pudo resetear: " + e); }
+  finally{ $("reset").disabled = false; $("reset").innerHTML = "&#8635;&nbsp; Reset &middot; dejar como primera vez"; }
+});
 
 // Bucle de refresco
 tickStatus(); refreshDb();
@@ -570,6 +671,13 @@ class Handler(BaseHTTPRequestHandler):
             if not lanzar(objetivo):
                 return self._send(409, json.dumps({"error": "ya hay una ejecucion en curso"}))
             return self._send(202, json.dumps({"ok": True, "objetivo": objetivo}))
+        if parsed.path == "/api/reset":
+            with ESTADO.lock:
+                ocupado = ESTADO.estado == "ejecutando"
+            if ocupado:
+                return self._send(409, json.dumps({"error": "hay una ejecucion en curso"}))
+            resumen = resetear()
+            return self._send(200, json.dumps({"ok": True, "resumen": resumen}))
         return self._send(404, json.dumps({"error": "no encontrado"}))
 
 
