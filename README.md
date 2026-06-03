@@ -279,10 +279,10 @@ demo:
 
 ## Metodologia de trabajo
 
-El proyecto mezcla una organizacion predictiva con ajustes adaptativos. La parte
-predictiva esta en el orden del pipeline, porque las etapas se ejecutan siempre
-de la misma manera. La parte adaptativa aparece al revisar los datos y ajustar
-reglas de limpieza, validacion y KPIs segun las anomalias encontradas.
+El proyecto se trabajó con una metodología adaptativa basada en Scrum. 
+Aunque el pipeline tiene un orden técnico definido ingesta, limpieza, validación, carga y KPIs, 
+la forma de trabajo del equipo fue iterativa: fuimos ajustando reglas de limpieza, 
+validación y métricas según las anomalías detectadas y los resultados de las pruebas.
 
 ## Posibles mejoras
 
