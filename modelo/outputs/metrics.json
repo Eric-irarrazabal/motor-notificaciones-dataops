@@ -1,0 +1,57 @@
+{
+  "actividad": "3.1 Modelo IA supervisado",
+  "objetivo": "riesgo de rechazo (valido=0 / rechazado=1)",
+  "modelo_final": "Regresión Logística",
+  "n_train": 1600,
+  "n_test": 400,
+  "calidad_datos": {
+    "filas": 2000,
+    "columnas": 18,
+    "tasa_rechazo": 0.15,
+    "duplicados_completos": 0,
+    "nulos_notification_id": 20
+  },
+  "metricas": {
+    "accuracy": 0.96,
+    "precision": 0.9231,
+    "recall": 0.8,
+    "f1": 0.8571,
+    "auc": 0.9286,
+    "gini": 0.8573
+  },
+  "matriz_confusion": {
+    "tn": 336,
+    "fp": 4,
+    "fn": 12,
+    "tp": 48
+  },
+  "comparacion_modelos": [
+    {
+      "modelo": "Regresión Logística",
+      "accuracy": 0.96,
+      "precision": 0.923,
+      "recall": 0.8,
+      "f1": 0.857,
+      "AUC": 0.929,
+      "Gini": 0.857
+    },
+    {
+      "modelo": "Árbol de Decisión",
+      "accuracy": 0.905,
+      "precision": 0.893,
+      "recall": 0.417,
+      "f1": 0.568,
+      "AUC": 0.69,
+      "Gini": 0.379
+    },
+    {
+      "modelo": "Random Forest",
+      "accuracy": 0.925,
+      "precision": 0.917,
+      "recall": 0.55,
+      "f1": 0.688,
+      "AUC": 0.916,
+      "Gini": 0.833
+    }
+  ]
+}

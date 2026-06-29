@@ -32,6 +32,7 @@ from urllib.parse import urlparse, parse_qs
 
 ROOT = Path(__file__).resolve().parent
 KPIS_FILE = ROOT / "data" / "reports" / "kpis_latest.json"
+METRICS_MODELO_FILE = ROOT / "modelo" / "outputs" / "metrics.json"
 
 # Etapas disponibles (nombre -> script). El orden refleja el flujo del pipeline.
 ETAPAS = {
@@ -262,6 +263,25 @@ def resetear():
     asegurar_dirs()
     return resumen
 
+
+
+
+def leer_metricas_modelo():
+    # Lee las métricas reales del modelo IA guardadas por la Actividad 3.1.
+    try:
+        with open(METRICS_MODELO_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def leer_dashboard_modelo_html():
+    # Lee el HTML simple del dashboard del modelo.
+    ruta = ROOT / "dashboard" / "dashboard_modelo.html"
+    try:
+        return ruta.read_text(encoding="utf-8")
+    except Exception:
+        return "<!doctype html><html lang=\"es\"><head><meta charset=\"utf-8\"><title>Modelo IA</title></head><body><h1>Dashboard del modelo IA</h1><p>No se encontro dashboard/dashboard_modelo.html.</p></body></html>"
 
 # --------------------------------------------------------------------------- #
 #  Frontend (HTML + CSS + JS en un solo archivo, servido como pagina estatica)
@@ -628,6 +648,13 @@ class Handler(BaseHTTPRequestHandler):
         ruta = parsed.path
         if ruta in ("/", "/index.html"):
             return self._send(200, PAGINA, "text/html; charset=utf-8")
+        if ruta == "/modelo":
+            return self._send(200, leer_dashboard_modelo_html(), "text/html; charset=utf-8")
+        if ruta == "/api/modelo/metricas":
+            datos = leer_metricas_modelo()
+            if not datos:
+                return self._send(404, json.dumps({"error": "no se encontró modelo/outputs/metrics.json"}))
+            return self._send(200, json.dumps(datos, ensure_ascii=False))
         if ruta == "/healthz":
             return self._send(200, "ok", "text/plain; charset=utf-8")
         if ruta == "/api/status":

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard del modelo IA - Riesgo de rechazo</title>
+<style>
+  :root { --borde:#d8dee4; --fondo:#f6f8fa; --texto:#1f2328; --muted:#57606a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Arial, Helvetica, sans-serif; color:var(--texto); background:#fff; line-height:1.5; }
+  header { padding:28px 32px 18px; border-bottom:1px solid var(--borde); background:var(--fondo); }
+  main { padding:24px 32px 38px; max-width:1100px; }
+  h1 { margin:0 0 6px; font-size:26px; }
+  h2 { margin:28px 0 12px; font-size:19px; }
+  p { margin:6px 0; }
+  .sub, .nota { color:var(--muted); }
+  .nota { font-size:13px; margin-top:8px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-top:14px; }
+  .card { border:1px solid var(--borde); border-radius:10px; padding:14px 16px; background:#fff; }
+  .card .label { color:var(--muted); font-size:13px; }
+  .card .valor { font-size:25px; font-weight:bold; margin-top:4px; }
+  table { border-collapse:collapse; width:100%; max-width:760px; margin-top:8px; }
+  th,td { border:1px solid var(--borde); padding:9px 12px; text-align:center; }
+  th { background:var(--fondo); }
+  .barra-fila { margin:12px 0; max-width:760px; }
+  .barra-label { display:flex; justify-content:space-between; gap:14px; font-size:14px; }
+  .barra-base { height:16px; background:var(--fondo); border:1px solid var(--borde); border-radius:999px; overflow:hidden; margin-top:4px; }
+  .barra { height:100%; background:#2f6fdd; }
+  .barra.auc { background:#6e7781; }
+  .acciones { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
+  a.boton { display:inline-block; padding:8px 12px; border:1px solid var(--borde); border-radius:8px; text-decoration:none; color:var(--texto); background:white; }
+  footer { margin-top:34px; padding-top:14px; border-top:1px solid var(--borde); color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Dashboard del modelo de IA</h1>
+  <p class="sub">Actividad 3.4 · Riesgo de rechazo de notificaciones · motor-notificaciones-dataops</p>
+  <div class="acciones"><a class="boton" href="/">Volver al panel principal</a></div>
+</header>
+<main>
+  <section><h2>Resumen del modelo</h2><p><strong id="modelo-final">Modelo final</strong></p><p class="nota" id="actualizacion">Datos cargados desde metrics.json.</p><div class="grid" id="tarjetas"></div></section>
+  <section><h2>Calidad de datos usada para entrenamiento</h2><table id="tabla-calidad"></table></section>
+  <section><h2>Matriz de confusión</h2><table id="tabla-matriz"></table><p class="nota">TN: válidos bien clasificados. FP: válidos marcados como rechazo. FN: rechazos no detectados. TP: rechazos detectados.</p></section>
+  <section><h2>Comparación de algoritmos</h2><div id="barras-modelos"></div><p class="nota">Primera barra: F1. Segunda barra: AUC. No se usan librerías externas.</p></section>
+  <footer>Este dashboard no usa librerías externas. Puede abrirse sin Internet y también puede integrarse al panel web mediante la ruta /modelo.</footer>
+</main>
+<script>
+const METRICAS_EMBEBIDAS = {
+  "actividad": "3.1 Modelo IA supervisado",
+  "objetivo": "riesgo de rechazo (valido=0 / rechazado=1)",
+  "modelo_final": "Regresión Logística",
+  "n_train": 1600,
+  "n_test": 400,
+  "calidad_datos": {
+    "filas": 2000,
+    "columnas": 18,
+    "tasa_rechazo": 0.15,
+    "duplicados_completos": 0,
+    "nulos_notification_id": 20
+  },
+  "metricas": {
+    "accuracy": 0.96,
+    "precision": 0.9231,
+    "recall": 0.8,
+    "f1": 0.8571,
+    "auc": 0.9286,
+    "gini": 0.8573
+  },
+  "matriz_confusion": {
+    "tn": 336,
+    "fp": 4,
+    "fn": 12,
+    "tp": 48
+  },
+  "comparacion_modelos": [
+    {
+      "modelo": "Regresión Logística",
+      "accuracy": 0.96,
+      "precision": 0.923,
+      "recall": 0.8,
+      "f1": 0.857,
+      "AUC": 0.929,
+      "Gini": 0.857
+    },
+    {
+      "modelo": "Árbol de Decisión",
+      "accuracy": 0.905,
+      "precision": 0.893,
+      "recall": 0.417,
+      "f1": 0.568,
+      "AUC": 0.69,
+      "Gini": 0.379
+    },
+    {
+      "modelo": "Random Forest",
+      "accuracy": 0.925,
+      "precision": 0.917,
+      "recall": 0.55,
+      "f1": 0.688,
+      "AUC": 0.916,
+      "Gini": 0.833
+    }
+  ]
+};
+function pct(x) { return (Number(x) * 100).toFixed(1) + "%"; }
+function num(x, d=3) { return Number(x).toFixed(d); }
+function renderizar(datos) {
+  const m = datos.metricas || {};
+  const c = datos.calidad_datos || {};
+  const cm = datos.matriz_confusion || {};
+  const modelos = datos.comparacion_modelos || [];
+  document.getElementById("modelo-final").textContent = "Modelo final: " + (datos.modelo_final || "no informado");
+  document.getElementById("actualizacion").textContent = "Última actualización: " + new Date().toLocaleDateString("es-CL") + " · Fuente: modelo/outputs/metrics.json";
+  const tarjetas = [["Accuracy", pct(m.accuracy)], ["Precision", pct(m.precision)], ["Recall", pct(m.recall)], ["F1", num(m.f1)], ["AUC", num(m.auc)], ["Gini", num(m.gini)]];
+  document.getElementById("tarjetas").innerHTML = tarjetas.map(([label, valor]) => `<div class="card"><div class="label">${label}</div><div class="valor">${valor}</div></div>`).join("");
+  document.getElementById("tabla-calidad").innerHTML = `<tr><th>Filas</th><th>Columnas</th><th>Train</th><th>Test</th><th>Tasa rechazo</th><th>Nulos notification_id</th></tr><tr><td>${c.filas ?? "-"}</td><td>${c.columnas ?? "-"}</td><td>${datos.n_train ?? "-"}</td><td>${datos.n_test ?? "-"}</td><td>${pct(c.tasa_rechazo || 0)}</td><td>${c.nulos_notification_id ?? "-"}</td></tr>`;
+  document.getElementById("tabla-matriz").innerHTML = `<tr><th></th><th>Predijo válido</th><th>Predijo rechazo</th></tr><tr><th>Real válido</th><td>${cm.tn ?? "-"}</td><td>${cm.fp ?? "-"}</td></tr><tr><th>Real rechazo</th><td>${cm.fn ?? "-"}</td><td>${cm.tp ?? "-"}</td></tr>`;
+  document.getElementById("barras-modelos").innerHTML = modelos.map(modelo => {
+    const f1 = Number(modelo.f1 || 0);
+    const auc = Number(modelo.AUC || modelo.auc || 0);
+    return `<div class="barra-fila"><div class="barra-label"><strong>${modelo.modelo}</strong><span>F1 ${num(f1)} · AUC ${num(auc)}</span></div><div class="barra-base"><div class="barra" style="width:${Math.max(0, Math.min(100, f1 * 100))}%"></div></div><div class="barra-base"><div class="barra auc" style="width:${Math.max(0, Math.min(100, auc * 100))}%"></div></div></div>`;
+  }).join("");
+}
+async function cargarMetricas() {
+  try {
+    const respuesta = await fetch("/api/modelo/metricas", {cache: "no-store"});
+    if (respuesta.ok) { renderizar(await respuesta.json()); return; }
+  } catch (e) {}
+  renderizar(METRICAS_EMBEBIDAS);
+}
+cargarMetricas();
+</script>
+</body>
+</html>
