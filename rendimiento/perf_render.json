@@ -1,0 +1,28 @@
+{
+  "entorno": "render",
+  "fecha": "2026-06-28",
+  "filas": 2000,
+  "tiempo_total_s": 54.8,
+  "tiempo_interno_pipeline_s": 48.5,
+  "throughput_filas_s": 36.5,
+  "fuente": "panel web en Render, boton 'Ejecutar pipeline completo', exit code 0",
+  "resultado_supabase": {
+    "notificaciones": 1700,
+    "rechazados": 300,
+    "load_audit": 1
+  },
+  "kpis": {
+    "completitud_pct": 100,
+    "tasa_rechazo_pct": 15,
+    "cumplimiento_sla_pct": 100,
+    "latencia_promedio_ms": 12596.45,
+    "latencia_p95_ms": 23547.35,
+    "nota": "latencia_promedio en ALERTA (12596 ms > meta 10000 ms); el resto cumple"
+  },
+  "comparacion": {
+    "local_s": 21.206,
+    "docker_s": 27.087,
+    "render_s": 54.8,
+    "motivo": "Render plan free usa CPU compartida y limitada, por eso es el entorno mas lento"
+  }
+}
