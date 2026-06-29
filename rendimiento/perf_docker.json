@@ -1,0 +1,24 @@
+{
+  "entorno": "docker",
+  "fecha": "2026-06-28",
+  "filas": 2000,
+  "tiempo_total_s": 27.087,
+  "throughput_filas_s": 73.8,
+  "comando": "docker compose down ; docker compose run --rm kpis",
+  "comparacion": {
+    "local_s": 21.206,
+    "docker_s": 27.087,
+    "diferencia_s": 5.881,
+    "motivo": "arranque de contenedores y E/S por volumenes montados (./data y ./logs)"
+  },
+  "cuello_de_botella": "validacion (igual que en local: revisa reglas de negocio fila por fila)",
+  "cpu_ram": {
+    "fuente": "docker stats (muestra puntual, no pico sostenido)",
+    "etapa_observada": "validacion",
+    "cpu_pct": 0.4,
+    "ram_mib": 49.72,
+    "ram_limite_gib": 7.712,
+    "nota": "RAM baja (~50 MiB) indica que el contenedor es liviano; el CPU% es una muestra instantanea, no el maximo"
+  },
+  "errores": []
+}

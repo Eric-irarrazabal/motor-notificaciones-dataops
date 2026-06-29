@@ -1,0 +1,50 @@
+{
+  "entorno": "local",
+  "fecha": "2026-06-28T13:48:04",
+  "filas": 2000,
+  "tiempo_total_s": 21.206,
+  "throughput_filas_s": 94.3,
+  "etapas": [
+    {
+      "etapa": "ingesta",
+      "segundos": 0.023,
+      "cpu_pct": 0.0,
+      "ram_mb": 78.6,
+      "filas": 2000,
+      "error": null
+    },
+    {
+      "etapa": "limpieza",
+      "segundos": 3.887,
+      "cpu_pct": 2.0,
+      "ram_mb": 87.5,
+      "filas": null,
+      "error": null
+    },
+    {
+      "etapa": "validacion",
+      "segundos": 13.95,
+      "cpu_pct": 1.5,
+      "ram_mb": 89.2,
+      "filas": 1945,
+      "error": null
+    },
+    {
+      "etapa": "carga",
+      "segundos": 3.316,
+      "cpu_pct": 3.8,
+      "ram_mb": 89.6,
+      "filas": 1700,
+      "error": null
+    },
+    {
+      "etapa": "kpis",
+      "segundos": 0.027,
+      "cpu_pct": 58.0,
+      "ram_mb": 91.5,
+      "filas": 1700,
+      "error": null
+    }
+  ],
+  "errores": []
+}
