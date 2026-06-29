@@ -400,6 +400,7 @@ PAGINA = r"""<!doctype html>
   <header class="top">
     <div>
       <h1>Panel del pipeline DataOps</h1>
+      <p class="sub"><a href="/modelo">Ver dashboard del modelo IA</a></p>
     </div>
     <span id="badge" class="badge"><span class="dot"></span><span id="badge-txt">Inactivo</span></span>
   </header>
