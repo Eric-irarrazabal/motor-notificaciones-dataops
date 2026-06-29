@@ -275,7 +275,7 @@ PAGINA = r"""<!doctype html>
 <style>
   :root{
     --bg:#eef1f7; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
-    --line:#e2e8f0; --accent:#4f46e5; --accent-soft:#eef2ff;
+    --line:#e2e8f0; --accent:#2563eb; --accent-soft:#eef3fb;
     --ok:#16a34a; --ok-soft:#dcfce7; --warn:#d97706; --warn-soft:#fef3c7;
     --err:#dc2626; --err-soft:#fee2e2; --console:#0b1220;
   }
@@ -322,9 +322,8 @@ PAGINA = r"""<!doctype html>
     transition:.15s; font-family:inherit;
   }
   .btn:disabled{opacity:.5; cursor:not-allowed;}
-  .btn-main{background:var(--accent); color:#fff; width:100%;
-    box-shadow:0 4px 14px rgba(79,70,229,.30);}
-  .btn-main:not(:disabled):hover{background:#4338ca;}
+  .btn-main{background:var(--accent); color:#fff; width:100%;}
+  .btn-main:not(:disabled):hover{background:#1d4ed8;}
   .btn-danger{background:#fff; color:var(--err); border:1px solid #fecaca; width:100%; margin-top:14px;}
   .btn-danger:not(:disabled):hover{background:var(--err-soft);}
   .stages{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
@@ -379,10 +378,9 @@ PAGINA = r"""<!doctype html>
 <div class="wrap">
 
   <header class="top">
-    <div class="logo">DO</div>
     <div>
-      <h1>Motor de Notificaciones &middot; DataOps</h1>
-      <p class="sub">Pipeline de ingesta, limpieza, validacion, carga y KPIs &rarr; Supabase</p>
+      <h1>Panel del pipeline DataOps</h1>
+      <p class="sub">Ingesta, limpieza, validacion, carga y KPIs. Carga final en Supabase.</p>
     </div>
     <span id="badge" class="badge"><span class="dot"></span><span id="badge-txt">Inactivo</span></span>
   </header>
@@ -401,8 +399,7 @@ PAGINA = r"""<!doctype html>
         <button class="chip" data-stage="carga">4 &middot; Carga</button>
         <button class="chip" data-stage="kpis">5 &middot; KPIs</button>
       </div>
-      <p class="hint">El pipeline completo corre las 5 etapas en orden (equivale a <code>docker compose up</code>).
-      Las etapas individuales equivalen a <code>docker compose run --rm &lt;etapa&gt;</code> y deben correrse en orden.</p>
+      <p class="hint">El pipeline completo corre las 5 etapas en orden. Tambien se puede correr una etapa a la vez, respetando el mismo orden.</p>
       <button id="reset" class="btn btn-danger">&#8635;&nbsp; Reset &middot; dejar como primera vez</button>
       <p class="hint">Vacia las tablas de Supabase y borra logs, KPIs y datos generados. Conserva el CSV de entrada.</p>
     </div>
@@ -436,7 +433,7 @@ PAGINA = r"""<!doctype html>
     <div id="console" class="console"></div>
   </div>
 
-  <footer>Panel de despliegue &middot; corre en Render (plan free) &middot; datos hacia Supabase</footer>
+  <footer>Proyecto DataOps - ITY1101. Desplegado en Render (plan free), datos en Supabase.</footer>
 </div>
 
 <script>
