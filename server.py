@@ -380,7 +380,6 @@ PAGINA = r"""<!doctype html>
   <header class="top">
     <div>
       <h1>Panel del pipeline DataOps</h1>
-      <p class="sub">Ingesta, limpieza, validacion, carga y KPIs. Carga final en Supabase.</p>
     </div>
     <span id="badge" class="badge"><span class="dot"></span><span id="badge-txt">Inactivo</span></span>
   </header>
@@ -433,7 +432,6 @@ PAGINA = r"""<!doctype html>
     <div id="console" class="console"></div>
   </div>
 
-  <footer>Proyecto DataOps - ITY1101. Desplegado en Render (plan free), datos en Supabase.</footer>
 </div>
 
 <script>
