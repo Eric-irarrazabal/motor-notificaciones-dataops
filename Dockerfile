@@ -16,6 +16,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY pipeline.py server.py ./
 COPY src/ ./src/
 
+# Modelo IA y dashboard
+COPY modelo/ ./modelo/
+COPY dashboard/ ./dashboard/
+
 # Datos de entrada: se copian dentro de la imagen para que sea autosuficiente
 # en la nube (Render no monta volumenes como docker-compose en local).
 COPY data/ ./data/
