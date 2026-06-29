@@ -399,8 +399,7 @@ PAGINA = r"""<!doctype html>
         <button class="chip" data-stage="kpis">5 &middot; KPIs</button>
       </div>
       <p class="hint">El pipeline completo corre las 5 etapas en orden. Tambien se puede correr una etapa a la vez, respetando el mismo orden.</p>
-      <button id="reset" class="btn btn-danger">&#8635;&nbsp; Reset &middot; dejar como primera vez</button>
-      <p class="hint">Vacia las tablas de Supabase y borra logs, KPIs y datos generados. Conserva el CSV de entrada.</p>
+      <button id="reset" class="btn btn-danger">&#8635;&nbsp; Reset &middot;</button>
     </div>
 
     <!-- Resumen -->
