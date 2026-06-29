@@ -17,7 +17,23 @@ logs/*
 !data/reports/.gitkeep
 !logs/.gitkeep
 
-# Archivos de ayuda/estudio, no son parte del proyecto
+
 GUIA_DEFENSA_PROYECTO.html
 GUIA_DEFENSA_PROYECTO.pdf
 _check_tmp/
+
+ITY1101 - Cerebro Parcial 3 DataOps*/
+README_OBSIDIAN.md
+00_INICIO/
+01_MATERIA_DOCENTE/
+02_PROYECTO_REPO/
+03_RELACION_MATERIA_PROYECTO/
+04_MODELO_IA/
+05_RENDIMIENTO/
+06_SEGURIDAD/
+07_VISUALIZACION_BI/
+08_INFORME_PRESENTACION/
+09_PROMPTS_PARA_IA/
+10_EVIDENCIAS/
+ESTUDIAR 3*/
+ENTREGA 3.* - subir al repo/
